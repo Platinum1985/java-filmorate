@@ -2,7 +2,6 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.homeTheatre.model.Film;
 import ru.yandex.practicum.homeTheatre.controller.FilmController;
 
-import java.time.Duration;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -33,7 +32,7 @@ class FilmValidationTest {
     @Test
     void testValidateFilmWithNegativeDuration() {
         Film film = new Film();
-        film.setDuration(Duration.ofSeconds(-1));
+        film.setDuration(-1L);
         assertFalse(FilmController.validateFilm(film));
     }
 
@@ -43,7 +42,7 @@ class FilmValidationTest {
         film.setName("Valid Film");
         film.setDescription("Valid description");
         film.setReleaseDate(LocalDate.of(1896, 1, 1));
-        film.setDuration(Duration.ofSeconds(120));
+        film.setDuration(120L);
         assertTrue(FilmController.validateFilm(film));
     }
 }

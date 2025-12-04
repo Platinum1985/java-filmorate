@@ -98,7 +98,7 @@ public class FilmController {
         }
 
         // Продолжительность фильма должна быть положительным числом
-        if (f.getDuration() == null || f.getDuration().getSeconds() <= 0) {
+        if (f.getDuration() == null || f.getDuration() <= 0) {
             log.error("Продолжительность фильма не заполнена или заполнена некорректно");
             return false;
         }
