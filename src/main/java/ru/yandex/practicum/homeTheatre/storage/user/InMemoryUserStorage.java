@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.model.User;
 
 import java.util.*;
@@ -27,14 +26,15 @@ public class InMemoryUserStorage implements UserStorage {
             user.setName(user.getLogin());
             log.debug("Имя пользователя {} приравняли логину", user);
         }
-            allUsers.put(user.getId(), user);
-            log.info("Размер HashMap ={}",allUsers.size());
+        allUsers.put(user.getId(), user);
+        log.info("Размер HashMap ={}", allUsers.size());
 
     }
+
     @Override
     public Collection<User> getFriends(int userId) {
         if (allUsers.get(userId) != null) {
-             allUsers.get(userId).getFriends().stream()
+            allUsers.get(userId).getFriends().stream()
                     .map(allUsers::get)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
@@ -47,6 +47,7 @@ public class InMemoryUserStorage implements UserStorage {
             return Collections.emptyList();
         }
     }
+
     @Override
     public Collection<User> getMutualFriends(int userId1, int userId2) {
         if (allUsers.get(userId1) != null && allUsers.get(userId2) != null) {
@@ -73,6 +74,7 @@ public class InMemoryUserStorage implements UserStorage {
     public void removeUser(int id) {
         allUsers.remove(id);
     }
+
     @Override
     public void addFriendById(int yourId, int friendId) {
         allUsers.get(yourId).getFriends().add(friendId);

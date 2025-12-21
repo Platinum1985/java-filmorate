@@ -1,14 +1,11 @@
 package ru.yandex.practicum.homeTheatre.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.homeTheatre.model.User;
 import ru.yandex.practicum.homeTheatre.storage.user.UserStorage;
 
 import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

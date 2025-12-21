@@ -3,9 +3,7 @@ package ru.yandex.practicum.homeTheatre.storage.film;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.model.Film;
-import ru.yandex.practicum.homeTheatre.model.User;
 
 import java.util.Collection;
 import java.util.HashMap;
