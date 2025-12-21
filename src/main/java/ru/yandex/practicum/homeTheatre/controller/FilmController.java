@@ -1,40 +1,60 @@
 package ru.yandex.practicum.homeTheatre.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.exceptions.ValidationException;
 import ru.yandex.practicum.homeTheatre.model.Film;
+import ru.yandex.practicum.homeTheatre.service.FilmService;
+import ru.yandex.practicum.homeTheatre.service.UserService;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/films")
+@RequiredArgsConstructor
+//@RequestMapping("/films")
 public class FilmController {
 
-    private final Map<Integer, Film> allFilms = new HashMap<>();
+    private final FilmService filmService;
+    private final UserService userService;
 
-    @GetMapping
-    public Collection<Film> findAll() {
-        return allFilms.values();
+    @GetMapping("/films")
+    public Collection<Film> getAllFilms() {
+        return filmService.getAllFilms();
     }
 
-    @PostMapping
+    @GetMapping("/films/{id}")
+    public Film getFilm(@PathVariable("id") int id) {
+        if (!filmService.existFilmById(id)) {
+            log.error("Фильм с таким ID {} не найден", id);
+            throw new NoFoundIdException("Пост с id = " + id + " не найден");
+        }
+        return filmService.getFilm(id);
+    }
+
+    @GetMapping("/films/popular")
+    public Collection<Film> getPopularFilms(@RequestParam(value = "count", required = false,
+            defaultValue = "10") int count) {
+        return filmService.getPopularFilms(count);
+    }
+
+
+    @PostMapping("/films")
     public Film create(@RequestBody Film film) {
         log.info("Начинается создание нового фильма: {}", film);
         // проверяем выполнение необходимых условий
         if (validateFilm(film)) {
             log.info("Валидация фильма {} прошла успешно", film);
             // формируем дополнительные данные
-            film.setId(getNextId());
             log.info("Фильму {} присвоен id {}", film, film.getId());
             // сохраняем новую публикацию в памяти приложения
-            allFilms.put(film.getId(), film);
+            filmService.addFilm(film);
         } else {
             log.error("некорректно заполнены поля");
             throw new ValidationException("некорректно заполнены поля");
@@ -45,11 +65,11 @@ public class FilmController {
 
     }
 
-    @PutMapping
+    @PutMapping("/films")
     public Film update(@RequestBody Film film) {
         log.info("Начинается обновление фильма: {}", film);
         // проверяем необходимые условия
-        if (!exists(film)) {
+        if (!filmService.existFilm(film)) {
             log.error("Фильм с ID {} не найден", film.getId());
             throw new NoFoundIdException("Пост с id = " + film.getId() + " не найден");
         }
@@ -57,24 +77,33 @@ public class FilmController {
             log.error("Некорректно заполнены поля фильма {}", film);
             throw new ValidationException("некорректно заполнены поля");
         }
+        filmService.updateFilm(film);
         log.info("Фильм успешно обновлен: {}", film);
-        allFilms.put(film.getId(), film);
         return film;
     }
 
-    private int getNextId() {
-        int currentMaxId = Math.toIntExact(allFilms.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0));
-        int nextId = ++currentMaxId;
-        log.debug("Следующий доступный ID для фильма: {}", nextId);
-        return nextId;
+    @DeleteMapping("/films")
+    public void deleteFilm(@RequestParam int id) {
+        filmService.removeFilm(id);
+        log.trace("Фильм с Id = {} удален", id);
     }
 
-    boolean exists(Film film) {
-        return allFilms.containsKey(film.getId());
+    @PostMapping("/films/{filmId}/like/{userId}")
+    public void addLike(@PathVariable("filmId") int filmId, @PathVariable("userId") int userId) {
+        if (!filmService.existFilmById(filmId) || userService.getUserById(userId) == null) {
+            log.error("Фильм с таким Id {} не найден", filmId);
+            throw new NoFoundIdException("Получены некорректные id фильма или пользователя");
+        }
+        filmService.addLike(filmId, userId);
+    }
+
+    @DeleteMapping("/films/{filmId}/like/{userId}")
+    public void deleteLike(@PathVariable("filmId") int filmId, @PathVariable("userId") int userId) {
+        if (!filmService.existFilmById(filmId)) {
+            log.error("Film с таким Id {} для удаления Like не найден", filmId);
+            throw new NoFoundIdException("Пост с id = " + filmId + " не найден");
+        }
+        filmService.deleteLike(filmId, userId);
     }
 
     public static boolean validateFilm(Film f) {
@@ -104,5 +133,24 @@ public class FilmController {
         }
 
         return true; // Все проверки пройдены успешно
+    }
+
+    @ExceptionHandler(NoFoundIdException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleNoFoundIdException(NoFoundIdException e) {
+        return Map.of("error", e.getMessage());
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleValidationException(ValidationException e) {
+        return Map.of("error", e.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Map<String, String> handleGeneralException(Exception e) {
+        log.error("Произошла ошибка на сервере", e);
+        return Map.of("error", "Произошла внутренняя ошибка сервера.");
     }
 }
