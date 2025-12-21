@@ -101,7 +101,10 @@ public class FilmController {
     public void deleteLike(@PathVariable("filmId") int filmId, @PathVariable("userId") int userId) {
         if (!filmService.existFilmById(filmId)) {
             log.error("Film с таким Id {} для удаления Like не найден", filmId);
-            throw new NoFoundIdException("Пост с id = " + filmId + " не найден");
+            throw new NoFoundIdException("Фильм с id = " + filmId + " не найден");
+        }
+        if (!filmService.getFilm(filmId).getLikes().contains(userId)) {
+            throw new NoFoundIdException("В лайках нет польз id = " + userId);
         }
         filmService.deleteLike(filmId, userId);
     }
