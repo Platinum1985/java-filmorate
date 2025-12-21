@@ -88,7 +88,7 @@ public class FilmController {
         log.trace("Фильм с Id = {} удален", id);
     }
 
-    @PostMapping("/films/{filmId}/like/{userId}")
+    @PutMapping("/films/{filmId}/like/{userId}")
     public void addLike(@PathVariable("filmId") int filmId, @PathVariable("userId") int userId) {
         if (!filmService.existFilmById(filmId) || userService.getUserById(userId) == null) {
             log.error("Фильм с таким Id {} не найден", filmId);

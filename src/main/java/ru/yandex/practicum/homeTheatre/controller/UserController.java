@@ -75,7 +75,7 @@ public class UserController {
 
     }
 
-    @PostMapping("/users/{id}/friends/{friendId}")
+    @PutMapping("/users/{id}/friends/{friendId}")
     public void addFriendById(@PathVariable("id") int yourId, @PathVariable("friendId") int friendId) {
         if (userService.getUserById(yourId) == null || userService.getUserById(friendId) == null) {
             throw new NoFoundIdException("Пользователи с такими id = " + yourId + " и " + friendId + " не найдены");
