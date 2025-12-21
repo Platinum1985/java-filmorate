@@ -14,11 +14,11 @@ public class FilmService {
     private final FilmStorage filmStorage;
     // private final Film user;
 
-    public Collection<Film> getAllFilms() {//+
+    public Collection<Film> getAllFilms() {
         return filmStorage.getAllFilms();
     }
 
-    public Film getFilm(int id) { //+
+    public Film getFilm(int id) {
         return filmStorage.getFilm(id);
     }
 
