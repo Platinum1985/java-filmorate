@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.model.User;
 
 import java.util.*;
@@ -33,7 +34,9 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public Collection<User> getFriends(int userId) {
-        if (allUsers.get(userId) != null) {
+        if (getUser(userId) == null) {
+            throw new NoFoundIdException("Пользователь с id = " + userId + " не найден");
+        } else {
             allUsers.get(userId).getFriends().stream()
                     .map(allUsers::get)
                     .filter(Objects::nonNull)
@@ -42,15 +45,14 @@ public class InMemoryUserStorage implements UserStorage {
                     .map(allUsers::get)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
-        } else {
-            // пользователь с указанным userId не найден
-            return Collections.emptyList();
         }
     }
 
     @Override
     public Collection<User> getMutualFriends(int userId1, int userId2) {
-        if (allUsers.get(userId1) != null && allUsers.get(userId2) != null) {
+        if (getUser(userId1) == null || getUser(userId2) == null) {
+            throw new NoFoundIdException("Пользователи с такими id = " + userId1 + " и " + userId2 + " не найдены");
+        } else {
             Set<Integer> commonFriends = allUsers.get(userId1).getFriends().stream()
                     .filter(allUsers.get(userId2).getFriends()::contains)
                     .collect(Collectors.toSet());
@@ -64,25 +66,31 @@ public class InMemoryUserStorage implements UserStorage {
                     .map(allUsers::get)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
-        } else {
-            // Один или оба пользователя не найдены
-            return Collections.emptyList();
         }
     }
 
     @Override
     public void removeUser(int id) {
+        if (getUser(id) == null) {
+            throw new NoFoundIdException("Пользователь с id = " + id + " не найден");
+        }
         allUsers.remove(id);
     }
 
     @Override
     public void addFriendById(int yourId, int friendId) {
+        if (getUser(yourId) == null || getUser(friendId) == null) {
+            throw new NoFoundIdException("Пользователи с такими id = " + yourId + " и " + friendId + " не найдены");
+        }
         allUsers.get(yourId).getFriends().add(friendId);
         allUsers.get(friendId).getFriends().add(yourId);
     }
 
     @Override
     public void deleteFriendById(int yourId, int friendId) {
+        if (getUser(yourId) == null || getUser(friendId) == null) {
+            throw new NoFoundIdException("Пользователи с такими id = " + yourId + " и " + friendId + " не найдены");
+        }
         allUsers.get(yourId).getFriends().remove(friendId);
         allUsers.get(friendId).getFriends().remove(yourId);
     }
@@ -99,6 +107,10 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void updateUser(User user) {
+        if (!exists(user)) {
+            log.error("Пользователь с ID {} не найден", user.getId());
+            throw new NoFoundIdException("Пользователь с id = " + user.getId() + " не найден");
+        }
         allUsers.put(user.getId(), user);
     }
 
