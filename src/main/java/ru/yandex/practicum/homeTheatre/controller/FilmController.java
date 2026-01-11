@@ -1,108 +1,92 @@
 package ru.yandex.practicum.homeTheatre.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.exceptions.ValidationException;
 import ru.yandex.practicum.homeTheatre.model.Film;
+import ru.yandex.practicum.homeTheatre.service.FilmService;
+import ru.yandex.practicum.homeTheatre.service.UserService;
 
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/films")
+@RequiredArgsConstructor
 public class FilmController {
 
-    private final Map<Integer, Film> allFilms = new HashMap<>();
+    private final FilmService filmService;
+    private final UserService userService;
 
-    @GetMapping
-    public Collection<Film> findAll() {
-        return allFilms.values();
+    @GetMapping("/films")
+    public Collection<Film> getAllFilms() {
+        return filmService.getAllFilms();
     }
 
-    @PostMapping
+    @GetMapping("/films/{id}")
+    public Film getFilm(@PathVariable("id") int id) {
+        return filmService.getFilm(id);
+    }
+
+    @GetMapping("/films/popular")
+    public Collection<Film> getPopularFilms(@RequestParam(value = "count", required = false,
+            defaultValue = "10") int count) {
+        return filmService.getPopularFilms(count);
+    }
+
+
+    @PostMapping("/films")
     public Film create(@RequestBody Film film) {
         log.info("Начинается создание нового фильма: {}", film);
-        // проверяем выполнение необходимых условий
-        if (validateFilm(film)) {
-            log.info("Валидация фильма {} прошла успешно", film);
-            // формируем дополнительные данные
-            film.setId(getNextId());
-            log.info("Фильму {} присвоен id {}", film, film.getId());
-            // сохраняем новую публикацию в памяти приложения
-            allFilms.put(film.getId(), film);
-        } else {
-            log.error("некорректно заполнены поля");
-            throw new ValidationException("некорректно заполнены поля");
-
-        }
+        filmService.addFilm(film);
         log.info("Фильм {} успешно создан и добавлен в HashMap", film);
         return film;
 
     }
 
-    @PutMapping
+    @PutMapping("/films")
     public Film update(@RequestBody Film film) {
         log.info("Начинается обновление фильма: {}", film);
-        // проверяем необходимые условия
-        if (!exists(film)) {
-            log.error("Фильм с ID {} не найден", film.getId());
-            throw new NoFoundIdException("Пост с id = " + film.getId() + " не найден");
-        }
-        if (!validateFilm(film)) {
-            log.error("Некорректно заполнены поля фильма {}", film);
-            throw new ValidationException("некорректно заполнены поля");
-        }
+        filmService.updateFilm(film);
         log.info("Фильм успешно обновлен: {}", film);
-        allFilms.put(film.getId(), film);
         return film;
     }
 
-    private int getNextId() {
-        int currentMaxId = Math.toIntExact(allFilms.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0));
-        int nextId = ++currentMaxId;
-        log.debug("Следующий доступный ID для фильма: {}", nextId);
-        return nextId;
+    @DeleteMapping("/films")
+    public void deleteFilm(@RequestParam int id) {
+        filmService.removeFilm(id);
+        log.trace("Фильм с Id = {} удален", id);
     }
 
-    boolean exists(Film film) {
-        return allFilms.containsKey(film.getId());
+    @PutMapping("/films/{filmId}/like/{userId}")
+    public void addLike(@PathVariable("filmId") int filmId, @PathVariable("userId") int userId) {
+        filmService.addLike(filmId, userId);
     }
 
-    public static boolean validateFilm(Film f) {
-        // Проверка, что название не пустое
-        if (!StringUtils.hasText(f.getName())) {
-            log.error("Не заполнено или пустое поле name");
-            return false;
-        }
+    @DeleteMapping("/films/{filmId}/like/{userId}")
+    public void deleteLike(@PathVariable("filmId") int filmId, @PathVariable("userId") int userId) {
+        filmService.deleteLike(filmId, userId);
+    }
 
-        // Максимальная длина описания — 200 символов
-        if (f.getDescription() != null && f.getDescription().length() > 200) {
-            log.error("Описание пустое либо содержит больше 200 символов");
-            return false;
-        }
+    @ExceptionHandler(NoFoundIdException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleNoFoundIdException(NoFoundIdException e) {
+        return Map.of("error", e.getMessage());
+    }
 
-        // Дата релиза — не раньше 28 декабря 1895 года
-        LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
-        if (f.getReleaseDate() == null || f.getReleaseDate().isBefore(minReleaseDate)) {
-            log.error("Дата релиза фильма не заполнена или заполнена некорректно");
-            return false;
-        }
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleValidationException(ValidationException e) {
+        return Map.of("error", e.getMessage());
+    }
 
-        // Продолжительность фильма должна быть положительным числом
-        if (f.getDuration() == null || f.getDuration() <= 0) {
-            log.error("Продолжительность фильма не заполнена или заполнена некорректно");
-            return false;
-        }
-
-        return true; // Все проверки пройдены успешно
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Map<String, String> handleGeneralException(Exception e) {
+        log.error("Произошла ошибка на сервере", e);
+        return Map.of("error", "Произошла внутренняя ошибка сервера.");
     }
 }
