@@ -82,8 +82,8 @@ public class InMemoryUserStorage implements UserStorage {
         if (getUser(yourId) == null || getUser(friendId) == null) {
             throw new NoFoundIdException("Пользователи с такими id = " + yourId + " и " + friendId + " не найдены");
         }
-        allUsers.get(yourId).getFriends().add(friendId);
-        allUsers.get(friendId).getFriends().add(yourId);
+        allUsers.get(yourId).getFriends().add(friendId);////
+        allUsers.get(friendId).getFriends().add(yourId);////
     }
 
     @Override
