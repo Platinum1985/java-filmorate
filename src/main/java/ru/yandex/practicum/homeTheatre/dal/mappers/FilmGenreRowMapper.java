@@ -12,10 +12,10 @@ import java.sql.SQLException;
 public class FilmGenreRowMapper implements RowMapper<FilmGenre> {
     @Override
     public FilmGenre mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-        FilmGenre film_genre = new FilmGenre();
-        film_genre.setId(resultSet.getInt("id"));
-        film_genre.setFilmId(resultSet.getInt("filmId"));
-        film_genre.setGenreId(resultSet.getInt("genreId"));
-        return film_genre;
+        FilmGenre filmgenre = new FilmGenre();
+        filmgenre.setId(resultSet.getInt("id"));
+        filmgenre.setFilmId(resultSet.getInt("filmId"));
+        filmgenre.setGenreId(resultSet.getInt("genreId"));
+        return filmgenre;
     }
 }

@@ -10,16 +10,16 @@ public final class FriendshipMapper {
     public static Friendship mapToFriendship(FriendshipDto dto) {
         Friendship friendship = new Friendship();
         friendship.setId(dto.getId());
-        friendship.setUserId_1(dto.getUserId1());
-        friendship.setUserId_2(dto.getUserId2());
+        friendship.setUserId1(dto.getUserId1());
+        friendship.setUserId2(dto.getUserId2());
         return friendship;
     }
 
     public static FriendshipDto mapToFriendshipDto(Friendship friendship) {
         FriendshipDto friendshipDto = new FriendshipDto();
         friendshipDto.setId(friendship.getId());
-        friendshipDto.setUserId1(friendship.getUserId_1());
-        friendshipDto.setUserId2(friendship.getUserId_2());
+        friendshipDto.setUserId1(friendship.getUserId1());
+        friendshipDto.setUserId2(friendship.getUserId2());
         return friendshipDto;
     }
 

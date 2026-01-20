@@ -30,9 +30,9 @@ public class FriendshipRepository extends ru.yandex.practicum.homeTheatre.dal.Ba
     }
 
     public void save(Friendship friendship) {
-        Integer count = jdbc.queryForObject(CHECKING_CONTAINS_USER_IDS_IN_TABLE, Integer.class, friendship.getUserId_1(), friendship.getUserId_2());
+        Integer count = jdbc.queryForObject(CHECKING_CONTAINS_USER_IDS_IN_TABLE, Integer.class, friendship.getUserId1(), friendship.getUserId2());
         if (count == 0) {
-            jdbc.update(INSERT_QUERY_ADD_FRIENDSHIP, friendship.getUserId_1(), friendship.getUserId_2());
+            jdbc.update(INSERT_QUERY_ADD_FRIENDSHIP, friendship.getUserId1(), friendship.getUserId2());
         } else {
             System.out.println("Строка с такими значениями уже есть в таблице"); // хз какую ошибку и код
 

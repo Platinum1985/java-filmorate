@@ -7,6 +7,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class Friendship {
     private int id;
-    private int userId_1; // user который отправляет запрос на дружбу
-    private int userId_2; // user который принимает или не принимает дружбу
+    private int userId1; // user который отправляет запрос на дружбу
+    private int userId2; // user который принимает или не принимает дружбу
 }
