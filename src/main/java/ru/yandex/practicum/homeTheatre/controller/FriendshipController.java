@@ -22,6 +22,7 @@ public class FriendshipController {
     public Set<Integer> getFriendsByUserId(@PathVariable("id") int id) {
         return friendshipService.getFriendsById(id);
     }
+
     @GetMapping("/users/{id}/friends/common/{otherId}")
     public Set<Integer> getMutualFriends(@PathVariable("id") int id1, @PathVariable("otherId") int id2) {
         return friendshipService.getMutualFriends(id1, id2);
@@ -29,16 +30,18 @@ public class FriendshipController {
 
     @PutMapping("/users/{id}/friends/{friendId}") // +
     public void addFriendById(@PathVariable("id") int yourId, @PathVariable("friendId") int friendId) {
-        FriendshipDto friendshipDto=new FriendshipDto();
+        FriendshipDto friendshipDto = new FriendshipDto();
         friendshipDto.setUserId_1(yourId);
         friendshipDto.setUserId_2(friendId);
         friendshipService.addFriendById(friendshipDto);
     }
+
     @DeleteMapping("/users/{id}/friends/{friendId}") // +
     public void deleteFriendById(@PathVariable("id") int yourId, @PathVariable("friendId") int friendId) {
 
         friendshipService.deleteFriendById(yourId, friendId);
     }
+
     @ExceptionHandler(NoFoundIdException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleNoFoundIdException(NoFoundIdException e) {
