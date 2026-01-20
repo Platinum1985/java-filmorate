@@ -5,7 +5,8 @@ import org.springframework.stereotype.Component;
 
 @Data
 @Component
-public class MPA {
+public class Like {
     private int id;
-    private String rating;
+    private int filmId;
+    private int userId;
 }

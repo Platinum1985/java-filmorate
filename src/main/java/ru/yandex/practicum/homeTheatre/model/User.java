@@ -11,10 +11,10 @@ import java.util.Set;
 @Data
 @EqualsAndHashCode(of = { "email" })//если поля email равны, то и их hashCode равны и объекты равны
 public class User {
-    int id;
-    String email;
-    String login;
-    String name;
-    LocalDate birthday;
-    Set<Integer> friends = new HashSet<>();
+    private int id;
+    private String email;
+    private String login;
+    private String name;
+    private LocalDate birthday;
+    private Set<Integer> friends = new HashSet<>();
 }

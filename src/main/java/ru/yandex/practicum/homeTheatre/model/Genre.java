@@ -1,10 +1,11 @@
 package ru.yandex.practicum.homeTheatre.model;
 
-public enum Genre {
-    КОМЕДИЯ,
-    ДРАМММА,
-    БОЕВИК,
-    МУЛЬТФИЛЬМ,
-    ТРИЛЛЕР,
-    ДОКУМЕНТАЛЬНЫЙ
+import lombok.Data;
+import org.springframework.stereotype.Component;
+
+@Data
+@Component
+public class Genre {
+    private int id;
+    private String name="";
 }

@@ -4,52 +4,50 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import ru.yandex.practicum.homeTheatre.dal.FriendshipRepository;
+import ru.yandex.practicum.homeTheatre.dal.UserRepository;
+import ru.yandex.practicum.homeTheatre.dto.UserDto;
+import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.exceptions.ValidationException;
+import ru.yandex.practicum.homeTheatre.mapper.UserMapper;
 import ru.yandex.practicum.homeTheatre.model.User;
 import ru.yandex.practicum.homeTheatre.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
-    private final User user;
+    private final UserRepository userRepository;
+    private final FriendshipRepository friendshipRepository;
 
-    public Collection<User> getAllUsersStorage() {
-        return userStorage.getAllUsers();
-    }
+    public Collection<User> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            Set<Integer> friends = friendshipRepository.getFriendsById(user.getId());
+            user.setFriends(friends);
+        }
+        return users;
+    }  // +
 
-    public Collection<User> getMutualFriends(int userId1, int userId2) {
-        return userStorage.getMutualFriends(userId1, userId2);
-    }
-
-    public Collection<User> getFriends(int userId) {
-        return userStorage.getFriends(userId);
-    }
-
-    public void addFriendById(int yourId, int friendId) {
-        userStorage.addFriendById(yourId, friendId);
-    }
-
-    public void deleteFriendById(int yourId, int friendId) {
-        userStorage.deleteFriendById(yourId, friendId);
-    }
 
     public void removeUserById(int id) {
-        userStorage.removeUser(id);
+        userRepository.removeUserById(id);
     }
 
     public boolean exists(User user) {
         return userStorage.exists(user);
     }
 
-    public void addUser(User user) {
-        if (validateUser(user)) {
-            log.info("Валидация пользователя {} прошла успешно", user);
-            userStorage.addUser(user);
+    public void addUser(UserDto userRequest) { // +
+        if (validateUser(userRequest)) {
+            log.info("Валидация пользователя {} прошла успешно", userRequest);
+            userRepository.save(UserMapper.mapToUser(userRequest));
         } else {
             log.error("Некорректно заполнены поля");
             throw new ValidationException("некорректно заполнены поля");
@@ -57,25 +55,31 @@ public class UserService {
         }
     }
 
-    public void updateUser(User user) {
-        if (!validateUser(user)) {
-            log.error("Поля пользователя {} заполнены некорректно", user.toString());
+    public void updateUser(UserDto userDto) { // +
+        if (!validateUser(userDto)) {
+            log.error("Поля пользователя {} заполнены некорректно", userDto.toString());
             throw new ValidationException("некорректно заполнены поля");
         }
         //если имя пустое-приравняем имя к Login
-        if (!StringUtils.hasText(user.getName())) {
-            log.debug("Имя пользователя {} пустое", user);
-            user.setName(user.getLogin());
-            log.debug("Имя изменяемого пользователя приравняли логину: name = {}", user.getName());
+        if (!StringUtils.hasText(userDto.getName())) {
+            log.debug("Имя пользователя {} пустое", userDto);
+            userDto.setName(userDto.getLogin());
+            log.debug("Имя изменяемого пользователя приравняли логину: name = {}", userDto.getName());
         }
-        userStorage.updateUser(user);
+        userRepository.update(UserMapper.mapToUser(userDto));
     }
 
-    public User getUserById(int id) {
-        return userStorage.getUser(id);
+    public UserDto getUserById(int userId) { // +
+        Set<Integer> friends = friendshipRepository.getFriendsById(userId); // нашли список друзей
+        return userRepository.findById(userId)
+                .map(user -> {
+                    user.setFriends(friends); // добавление нового поля
+                    return UserMapper.mapToUserDto(user);
+                })
+                .orElseThrow(() -> new NoFoundIdException("Пользователь не найден с ID: " + userId));
     }
 
-    public boolean validateUser(User user) {
+    public boolean validateUser(UserDto user) {
         // Проверка электронной почты
         if (!StringUtils.hasText(user.getEmail()) || !user.getEmail().contains("@")) {
             log.error("Не заполнено email или заполнен некорректно");

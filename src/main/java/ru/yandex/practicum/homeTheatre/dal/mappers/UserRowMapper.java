@@ -7,7 +7,6 @@ import ru.yandex.practicum.homeTheatre.model.User;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 
 @Component
@@ -24,7 +23,6 @@ public class UserRowMapper implements RowMapper<User> {
             LocalDate localDate = sqlDate.toLocalDate();
             user.setBirthday(localDate);
         }
-
 
         return user;
     }

@@ -8,7 +8,6 @@ import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.exceptions.ValidationException;
 import ru.yandex.practicum.homeTheatre.model.Film;
 import ru.yandex.practicum.homeTheatre.service.FilmService;
-import ru.yandex.practicum.homeTheatre.service.UserService;
 
 import java.util.Collection;
 import java.util.Map;
@@ -19,7 +18,7 @@ import java.util.Map;
 public class FilmController {
 
     private final FilmService filmService;
-    private final UserService userService;
+
 
     @GetMapping("/films")
     public Collection<Film> getAllFilms() {
@@ -48,7 +47,7 @@ public class FilmController {
     }
 
     @PutMapping("/films")
-    public Film update(@RequestBody Film film) {
+    public Film update(@RequestBody Film film) { // почему горишь синим???
         log.info("Начинается обновление фильма: {}", film);
         filmService.updateFilm(film);
         log.info("Фильм успешно обновлен: {}", film);

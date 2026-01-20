@@ -1,11 +1,11 @@
-package ru.yandex.practicum.catsgram.dal;
+package ru.yandex.practicum.homeTheatre.dal;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
-import ru.yandex.practicum.catsgram.exception.InternalServerException;
+import ru.yandex.practicum.homeTheatre.exceptions.InternalServerException;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -29,9 +29,23 @@ public class BaseRepository<T> {
     protected List<T> findMany(String query, Object... params) {
         return jdbc.query(query, mapper, params);
     }
-    protected boolean delete(String query, long id) {
-        int rowsDeleted = jdbc.update(query, id);
-        return rowsDeleted > 0;
+    protected boolean delete(String query, int id) {
+        try {
+            int rowsDeleted = jdbc.update(query, id);
+            return rowsDeleted > 0;
+        } catch (Exception e) {
+            // Логирование исключения, если необходимо
+            throw new InternalServerException("Произошла ошибка при удалении данных");
+        }
+    }
+    protected boolean delete(String query, int id_1, int id_2) { // можно было сделать аргументы переменной длины
+        try {
+            int rowsDeleted = jdbc.update(query, id_1, id_2);
+            return rowsDeleted > 0;
+        } catch (Exception e) {
+            // Логирование исключения, если необходимо
+            throw new InternalServerException("Произошла ошибка при удалении данных");
+        }
     }
     protected void update(String query, Object... params) {
         int rowsUpdated = jdbc.update(query, params);

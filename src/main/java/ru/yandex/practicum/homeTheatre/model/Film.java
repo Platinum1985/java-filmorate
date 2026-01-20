@@ -16,6 +16,6 @@ public class Film {
     private LocalDate releaseDate;
     private Long duration;
     private Set<Integer> likes = new HashSet<>();
-    private MPA mpa; //добавить обработку и валидацию
-    private Set<Genre> genres = new HashSet<>(); // добавить обработку и валидацию
+    private int mpa; // добавить обработку и валидацию
+    private Set<Integer> genres = new HashSet<>(); // добавить обработку и валидацию
 }
