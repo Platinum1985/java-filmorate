@@ -31,8 +31,8 @@ public class FriendshipController {
     @PutMapping("/users/{id}/friends/{friendId}") // +
     public void addFriendById(@PathVariable("id") int yourId, @PathVariable("friendId") int friendId) {
         FriendshipDto friendshipDto = new FriendshipDto();
-        friendshipDto.setUserId_1(yourId);
-        friendshipDto.setUserId_2(friendId);
+        friendshipDto.setUserId1(yourId);
+        friendshipDto.setUserId2(friendId);
         friendshipService.addFriendById(friendshipDto);
     }
 

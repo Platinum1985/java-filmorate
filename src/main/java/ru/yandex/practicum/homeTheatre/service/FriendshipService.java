@@ -6,9 +6,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.homeTheatre.dal.FriendshipRepository;
 import ru.yandex.practicum.homeTheatre.dto.FriendshipDto;
 import ru.yandex.practicum.homeTheatre.mapper.FriendshipMapper;
-import ru.yandex.practicum.homeTheatre.model.User;
 
-import java.util.Collection;
+
 import java.util.Set;
 
 

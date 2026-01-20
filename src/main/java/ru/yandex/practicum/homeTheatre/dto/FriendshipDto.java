@@ -7,8 +7,8 @@ import lombok.Data;
 public class FriendshipDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private int id;
-    private int userId_1;
-    private int userId_2;
+    private int userId1;
+    private int userId2;
     // private FriendStatus friendStatus;
 
 }
