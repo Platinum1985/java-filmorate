@@ -37,11 +37,11 @@ public class FilmMPARepository extends ru.yandex.practicum.homeTheatre.dal.BaseR
     }
 
     public FilmMPA findMPAByFilmId(int filmId) {
-        Optional<FilmMPA> film_mpa = findOne(FIND_BY_ID_QUERY, filmId);
-        if (film_mpa.isEmpty()) {
+        Optional<FilmMPA> filmMpa = findOne(FIND_BY_ID_QUERY, filmId);
+        if (filmMpa.isEmpty()) {
             throw new NoFoundIdException("Нет строки с таким filmId");
         } else {
-            return film_mpa.get();
+            return filmMpa.get();
         }
     }
 

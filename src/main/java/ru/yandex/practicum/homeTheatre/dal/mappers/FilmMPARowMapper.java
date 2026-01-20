@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Component
-public class Film_MPA_RowMapper implements RowMapper<FilmMPA> {
+public class FilmMPARowMapper implements RowMapper<FilmMPA> {
     @Override
     public FilmMPA mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         FilmMPA filmMpa = new FilmMPA();
