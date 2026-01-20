@@ -3,7 +3,7 @@ package ru.yandex.practicum.homeTheatre.dal.mappers;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.homeTheatre.model.Genre;
-import ru.yandex.practicum.homeTheatre.model.Like;
+
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 
 @Data
 @Component
-public class Film_Genre {
+public class FilmMPA {
     int id;
+    int mpaId;
     int filmId;
-    int genreId;
 }

@@ -7,8 +7,8 @@ import org.springframework.util.StringUtils;
 import ru.yandex.practicum.homeTheatre.dal.*;
 import ru.yandex.practicum.homeTheatre.exceptions.ValidationException;
 import ru.yandex.practicum.homeTheatre.model.Film;
-import ru.yandex.practicum.homeTheatre.model.Film_Genre;
-import ru.yandex.practicum.homeTheatre.model.Film_MPA;
+import ru.yandex.practicum.homeTheatre.model.FilmGenre;
+import ru.yandex.practicum.homeTheatre.model.FilmMPA;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -20,8 +20,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class FilmService {
     private final LikeRepository likeRepository;
-    private final Film_MPA_Repository filmMpaRepository;
-    private final Film_Genre_Repository filmGenreRepository;
+    private final FilmMPARepository filmMpaRepository;
+    private final FilmGenreRepository filmGenreRepository;
     private final FilmRepository filmRepository;
 
     public List<Film> getAllFilms() {
@@ -59,13 +59,13 @@ public class FilmService {
             filmRepository.save(film);
             Set<Integer> genres = film.getGenres();
             for (int genreId : genres) {
-                Film_Genre filmGenre = new Film_Genre();
+                FilmGenre filmGenre = new FilmGenre();
                 filmGenre.setFilmId(film.getId());
                 filmGenre.setGenreId(genreId);
                 filmGenreRepository.save(filmGenre);
             }
             int mpaId = film.getMpa();
-            Film_MPA filmMpa = new Film_MPA();
+            FilmMPA filmMpa = new FilmMPA();
             filmMpa.setFilmId(film.getId());
             filmMpa.setMpaId(mpaId);
             filmMpaRepository.save(filmMpa);
@@ -88,13 +88,13 @@ public class FilmService {
         } else {
             Set<Integer> genres = film.getGenres();
             for (int genreId : genres) {
-                Film_Genre filmGenre = new Film_Genre();
+                FilmGenre filmGenre = new FilmGenre();
                 filmGenre.setFilmId(film.getId());
                 filmGenre.setGenreId(genreId);
                 filmGenreRepository.update(filmGenre);
             }
             int mpaId = film.getMpa();
-            Film_MPA filmMpa = new Film_MPA();
+            FilmMPA filmMpa = new FilmMPA();
             filmMpa.setFilmId(film.getId());
             filmMpa.setMpaId(mpaId);
             filmMpaRepository.update(filmMpa);

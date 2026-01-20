@@ -3,22 +3,22 @@ package ru.yandex.practicum.homeTheatre.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.homeTheatre.dal.Film_Genre_Repository;
-import ru.yandex.practicum.homeTheatre.model.Film_Genre;
+import ru.yandex.practicum.homeTheatre.dal.FilmGenreRepository;
+import ru.yandex.practicum.homeTheatre.model.FilmGenre;
 
 import java.util.Set;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class Film_Genre_Service {
-    private final Film_Genre_Repository filmGenreRepository;
+public class FilmGenreService {
+    private final FilmGenreRepository filmGenreRepository;
 
     public Set<Integer> getGenresByFilmId(int filmId) {
         return filmGenreRepository.getGenresByFilmId(filmId);
     }
 
-    public void addGenreByFilmId(Film_Genre filmGenre) {
+    public void addGenreByFilmId(FilmGenre filmGenre) {
         filmGenreRepository.save(filmGenre);
     }
 
