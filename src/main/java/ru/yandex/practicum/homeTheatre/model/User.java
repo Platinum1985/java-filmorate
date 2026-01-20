@@ -2,7 +2,6 @@ package ru.yandex.practicum.homeTheatre.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.HashSet;
