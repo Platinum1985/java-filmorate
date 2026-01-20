@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@EqualsAndHashCode(of = { "email" })//если поля email равны, то и их hashCode равны и объекты равны
+@EqualsAndHashCode(of = {"email"})//если поля email равны, то и их hashCode равны и объекты равны
 public class User {
     private int id;
     private String email;

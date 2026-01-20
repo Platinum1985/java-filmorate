@@ -7,5 +7,5 @@ import org.springframework.stereotype.Component;
 @Component
 public class Genre {
     private int id;
-    private String name="";
+    private String name;
 }

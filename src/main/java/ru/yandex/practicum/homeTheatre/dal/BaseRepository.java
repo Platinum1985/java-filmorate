@@ -29,6 +29,7 @@ public class BaseRepository<T> {
     protected List<T> findMany(String query, Object... params) {
         return jdbc.query(query, mapper, params);
     }
+
     protected boolean delete(String query, int id) {
         try {
             int rowsDeleted = jdbc.update(query, id);
@@ -38,6 +39,7 @@ public class BaseRepository<T> {
             throw new InternalServerException("Произошла ошибка при удалении данных");
         }
     }
+
     protected boolean delete(String query, int id_1, int id_2) { // можно было сделать аргументы переменной длины
         try {
             int rowsDeleted = jdbc.update(query, id_1, id_2);
@@ -47,12 +49,14 @@ public class BaseRepository<T> {
             throw new InternalServerException("Произошла ошибка при удалении данных");
         }
     }
+
     protected void update(String query, Object... params) {
         int rowsUpdated = jdbc.update(query, params);
         if (rowsUpdated == 0) {
             throw new InternalServerException("Не удалось обновить данные");
         }
     }
+
     protected long insert(String query, Object... params) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbc.update(connection -> {
@@ -61,7 +65,8 @@ public class BaseRepository<T> {
             for (int idx = 0; idx < params.length; idx++) {
                 ps.setObject(idx + 1, params[idx]);
             }
-            return ps;}, keyHolder);
+            return ps;
+        }, keyHolder);
 
         Long id = keyHolder.getKeyAs(Long.class);
 

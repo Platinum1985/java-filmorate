@@ -1,7 +1,6 @@
 package ru.yandex.practicum.homeTheatre.dal;
 
 
-
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;

@@ -29,6 +29,7 @@ public class FriendshipService {
     public void deleteFriendById(int userId_1, int userId_2) {
         friendshipRepository.deleteFriendById(userId_1, userId_2);
     }
+
     public Set<Integer> getMutualFriends(int userId1, int userId2) {
         return friendshipRepository.findMutualFriends(userId1, userId2);
     }

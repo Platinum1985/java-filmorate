@@ -50,6 +50,7 @@ public class LikeRepository extends ru.yandex.practicum.homeTheatre.dal.BaseRepo
             throw new InternalServerException("Не удалось удалить пользователя");
         }
     }
+
     public List<Integer> getPopularFilmIds(int count) {
         return jdbc.query(FIND_MOST_LIKED_FILMS_QUERY, (rs, rowNum) -> rs.getInt("filmId"), count);
     }

@@ -13,9 +13,11 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class Film_Genre_Service {
     private final Film_Genre_Repository filmGenreRepository;
+
     public Set<Integer> getGenresByFilmId(int filmId) {
         return filmGenreRepository.getGenresByFilmId(filmId);
     }
+
     public void addGenreByFilmId(Film_Genre filmGenre) {
         filmGenreRepository.save(filmGenre);
     }
