@@ -6,12 +6,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.yandex.practicum.homeTheatre.dal.FriendshipRepository;
 import ru.yandex.practicum.homeTheatre.dal.UserRepository;
+import ru.yandex.practicum.homeTheatre.dto.FriendshipDto;
 import ru.yandex.practicum.homeTheatre.dto.UserDto;
 import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.exceptions.ValidationException;
+import ru.yandex.practicum.homeTheatre.mapper.FriendshipMapper;
 import ru.yandex.practicum.homeTheatre.mapper.UserMapper;
 import ru.yandex.practicum.homeTheatre.model.User;
-import ru.yandex.practicum.homeTheatre.storage.user.UserStorage;
+
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -22,7 +24,6 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final UserStorage userStorage;
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
 
@@ -40,9 +41,6 @@ public class UserService {
         userRepository.removeUserById(id);
     }
 
-    public boolean exists(User user) {
-        return userStorage.exists(user);
-    }
 
     public void addUser(UserDto userRequest) { // +
         if (validateUser(userRequest)) {
@@ -78,8 +76,24 @@ public class UserService {
                 })
                 .orElseThrow(() -> new NoFoundIdException("Пользователь не найден с ID: " + userId));
     }
+    public void addFriendById(FriendshipDto dto) {
+        friendshipRepository.save(FriendshipMapper.mapToFriendship(dto));
+    }
 
-    public boolean validateUser(UserDto user) {
+    public Set<Integer> getFriendsById(int id) {
+        return friendshipRepository.getFriendsById(id);
+    }
+
+    public void deleteFriendById(int userId1, int userId2) {
+        friendshipRepository.deleteFriendById(userId1, userId2);
+    }
+
+    public Set<Integer> getMutualFriends(int userId1, int userId2) {
+        return friendshipRepository.findMutualFriends(userId1, userId2);
+    }
+
+
+public boolean validateUser(UserDto user) {
         // Проверка электронной почты
         if (!StringUtils.hasText(user.getEmail()) || !user.getEmail().contains("@")) {
             log.error("Не заполнено email или заполнен некорректно");

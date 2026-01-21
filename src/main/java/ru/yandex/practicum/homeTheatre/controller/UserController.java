@@ -4,14 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.homeTheatre.dto.FriendshipDto;
 import ru.yandex.practicum.homeTheatre.dto.UserDto;
 import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.exceptions.ValidationException;
+import ru.yandex.practicum.homeTheatre.model.Friendship;
 import ru.yandex.practicum.homeTheatre.model.User;
 import ru.yandex.practicum.homeTheatre.service.UserService;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -53,6 +56,29 @@ public class UserController {
         userService.updateUser(userDto);
         log.info("Изменили данные пользователя");
         return userDto;
+    }
+
+    @GetMapping("/users/{id}/friends")
+    public Set<Integer> getFriendsByUserId(@PathVariable("id") int id) {
+        return userService.getFriendsById(id);
+    }
+
+    @GetMapping("/users/{id}/friends/common/{otherId}")
+    public Set<Integer> getMutualFriends(@PathVariable("id") int id1, @PathVariable("otherId") int id2) {
+        return userService.getMutualFriends(id1, id2);
+    }
+
+    @PutMapping("/users/{id}/friends/{friendId}") // +
+    public void addFriendById(@PathVariable("id") int yourId, @PathVariable("friendId") int friendId) {
+        FriendshipDto friendshipDto = new FriendshipDto();
+        friendshipDto.setUserId1(yourId);
+        friendshipDto.setUserId2(friendId);
+        userService.addFriendById(friendshipDto);
+    }
+
+    @DeleteMapping("/users/{id}/friends/{friendId}") // +
+    public void deleteFriendById(@PathVariable("id") int yourId, @PathVariable("friendId") int friendId) {
+        userService.deleteFriendById(yourId, friendId);
     }
 
     @ExceptionHandler(NoFoundIdException.class)
