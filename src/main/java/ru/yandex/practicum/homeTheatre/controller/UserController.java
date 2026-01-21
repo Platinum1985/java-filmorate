@@ -8,7 +8,6 @@ import ru.yandex.practicum.homeTheatre.dto.FriendshipDto;
 import ru.yandex.practicum.homeTheatre.dto.UserDto;
 import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.exceptions.ValidationException;
-import ru.yandex.practicum.homeTheatre.model.Friendship;
 import ru.yandex.practicum.homeTheatre.model.User;
 import ru.yandex.practicum.homeTheatre.service.UserService;
 
