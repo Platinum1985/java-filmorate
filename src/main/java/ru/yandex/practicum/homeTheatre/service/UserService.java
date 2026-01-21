@@ -76,6 +76,7 @@ public class UserService {
                 })
                 .orElseThrow(() -> new NoFoundIdException("Пользователь не найден с ID: " + userId));
     }
+
     public void addFriendById(FriendshipDto dto) {
         friendshipRepository.save(FriendshipMapper.mapToFriendship(dto));
     }
@@ -93,7 +94,7 @@ public class UserService {
     }
 
 
-public boolean validateUser(UserDto user) {
+    public boolean validateUser(UserDto user) {
         // Проверка электронной почты
         if (!StringUtils.hasText(user.getEmail()) || !user.getEmail().contains("@")) {
             log.error("Не заполнено email или заполнен некорректно");

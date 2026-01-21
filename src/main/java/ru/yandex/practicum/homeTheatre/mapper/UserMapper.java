@@ -29,17 +29,4 @@ public final class UserMapper {
         dto.setBirthday(user.getBirthday());
         return dto;
     }
-/*
-    public static User updateUserFields(User user, UpdateUserRequest request) {
-        if (request.hasEmail()) {
-            user.setEmail(request.getEmail());
-        }
-        if (request.hasPassword()) {
-            user.setPassword(request.getPassword());
-        }
-        if (request.hasUsername()) {
-            user.setUsername(request.getUsername());
-        }
-        return user;
-    }*/
 }
