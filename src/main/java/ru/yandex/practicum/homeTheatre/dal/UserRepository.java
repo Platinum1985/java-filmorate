@@ -15,7 +15,7 @@ public class UserRepository extends ru.yandex.practicum.homeTheatre.dal.BaseRepo
     private static final String FIND_ALL_QUERY = "SELECT * FROM users";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
     private static final String INSERT_QUERY = "INSERT INTO users(name, email, login, birthday)" +
-            "VALUES (?, ?, ?, ?) returning id";
+            "VALUES (?, ?, ?, ?)"; // returning id";  h2 не поддерживает такое
     private static final String UPDATE_QUERY = "UPDATE users SET name = ?, email = ?, login = ?, birthday = ? WHERE id = ?";
     private static final String DELETE_QUERY = "DELETE FROM users WHERE id = ?";
 

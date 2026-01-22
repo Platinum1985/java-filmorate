@@ -4,10 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.homeTheatre.dto.FriendshipDto;
-import ru.yandex.practicum.homeTheatre.dto.UserDto;
 import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.exceptions.ValidationException;
+import ru.yandex.practicum.homeTheatre.model.Friendship;
 import ru.yandex.practicum.homeTheatre.model.User;
 import ru.yandex.practicum.homeTheatre.service.UserService;
 
@@ -27,9 +26,8 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @GetMapping("/users/{userId}") // +
-    public UserDto findUserById(@PathVariable("userId") int userId) {
-
+    @GetMapping("/users/{userId}")
+    public User findUserById(@PathVariable("userId") int userId) {
         return userService.getUserById(userId);
     }
 
@@ -39,22 +37,21 @@ public class UserController {
     }
 
 
-    @PostMapping("/users") // +
-    public UserDto create(@RequestBody UserDto userRequest) {
-        log.info("Начинается создание нового user: {}", userRequest);
-        userService.addUser(userRequest);
-        log.info("Пользователь {} успешно создан и добавлен в HashMap", userRequest);
-        return userRequest;
-
+    @PostMapping("/users")
+    public User create(@RequestBody User userRequest) {
+        log.info("Начинается создание нового пользователя: {}", userRequest);
+        User createdUser = userService.addUser(userRequest);
+        log.info("Пользователь {} успешно создан и добавлен", createdUser);
+        return createdUser;
     }
 
 
-    @PutMapping("/users") // +
-    public UserDto update(@RequestBody UserDto userDto) {
-        log.info("Начинается обновление пользователя: {}", userDto);
-        userService.updateUser(userDto);
-        log.info("Изменили данные пользователя");
-        return userDto;
+    @PutMapping("/users")
+    public User update(@RequestBody User user) {
+        log.info("Начинается обновление пользователя: {}", user);
+        userService.updateUser(user);
+        log.info("Данные пользователя обновлены");
+        return user;
     }
 
     @GetMapping("/users/{id}/friends")
@@ -64,20 +61,27 @@ public class UserController {
 
     @GetMapping("/users/{id}/friends/common/{otherId}")
     public Set<Integer> getMutualFriends(@PathVariable("id") int id1, @PathVariable("otherId") int id2) {
-        return userService.getMutualFriends(id1, id2);
+        Friendship friendship = new Friendship();
+        friendship.setUserId1(id1);
+        friendship.setUserId2(id2);
+        return userService.getMutualFriends(friendship);
     }
 
     @PutMapping("/users/{id}/friends/{friendId}") // +
-    public void addFriendById(@PathVariable("id") int yourId, @PathVariable("friendId") int friendId) {
-        FriendshipDto friendshipDto = new FriendshipDto();
-        friendshipDto.setUserId1(yourId);
-        friendshipDto.setUserId2(friendId);
-        userService.addFriendById(friendshipDto);
+    public String addFriendById(@PathVariable("id") int yourId, @PathVariable("friendId") int friendId) {
+        Friendship friendship = new Friendship();
+        friendship.setUserId1(yourId);
+        friendship.setUserId2(friendId);
+        userService.addFriendById(friendship);
+        return "Пользователь "+yourId+" добавил пользователя "+friendId+" в друзья";
     }
 
     @DeleteMapping("/users/{id}/friends/{friendId}") // +
     public void deleteFriendById(@PathVariable("id") int yourId, @PathVariable("friendId") int friendId) {
-        userService.deleteFriendById(yourId, friendId);
+        Friendship friendship = new Friendship();
+        friendship.setUserId1(yourId);
+        friendship.setUserId2(friendId);
+        userService.deleteFriendById(friendship);
     }
 
     @ExceptionHandler(NoFoundIdException.class)

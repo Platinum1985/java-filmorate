@@ -46,17 +46,17 @@ public class FriendshipRepository extends ru.yandex.practicum.homeTheatre.dal.Ba
                 .collect(Collectors.toSet());
     }
 
-    public void deleteFriendById(int userId1, int userId2) {
-        boolean deleted = delete(DELETE_QUERY, userId1, userId2);
+    public void deleteFriendById(Friendship friendship) {
+        boolean deleted = delete(DELETE_QUERY, friendship.getUserId1(), friendship.getUserId2());
         if (!deleted) {
             throw new InternalServerException("Не удалось удалить пользователя");
         }
     }
 
-    public Set<Integer> findMutualFriends(int userId1, int userId2) {
+    public Set<Integer> findMutualFriends(Friendship friendship) {
 
 
-        return jdbc.query(FIND_COMMON_FRIENDS_QUERY, (rs, rowNum) -> rs.getInt("common_friend"), userId1, userId2)
+        return jdbc.query(FIND_COMMON_FRIENDS_QUERY, (rs, rowNum) -> rs.getInt("common_friend"), friendship.getUserId1(), friendship.getUserId2())
                 .stream()
                 .collect(Collectors.toSet());
     }

@@ -18,7 +18,7 @@ public class FilmRepository extends ru.yandex.practicum.homeTheatre.dal.BaseRepo
     private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id = ?";
     private static final String UPDATE_FILM_BY_ID_QUERY = "UPDATE films SET name = ?, description = ?, releaseDate = ?, duration = ? WHERE id = ?";
     private static final String INSERT_QUERY = "INSERT INTO films(name, description, releaseDate, duration)" +
-            "VALUES (?, ?, ?, ?) returning id";
+            "VALUES (?, ?, ?, ?)"; // returning id; так h2 не принимает
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);

@@ -6,12 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.yandex.practicum.homeTheatre.dal.FriendshipRepository;
 import ru.yandex.practicum.homeTheatre.dal.UserRepository;
-import ru.yandex.practicum.homeTheatre.dto.FriendshipDto;
-import ru.yandex.practicum.homeTheatre.dto.UserDto;
 import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.exceptions.ValidationException;
-import ru.yandex.practicum.homeTheatre.mapper.FriendshipMapper;
-import ru.yandex.practicum.homeTheatre.mapper.UserMapper;
+import ru.yandex.practicum.homeTheatre.model.Friendship;
 import ru.yandex.practicum.homeTheatre.model.User;
 
 
@@ -42,59 +39,60 @@ public class UserService {
     }
 
 
-    public void addUser(UserDto userRequest) { // +
-        if (validateUser(userRequest)) {
-            log.info("Валидация пользователя {} прошла успешно", userRequest);
-            userRepository.save(UserMapper.mapToUser(userRequest));
+    public User addUser(User user) { // +
+        if (validateUser(user)) {
+            log.info("Валидация пользователя {} прошла успешно", user);
+            userRepository.save(user);
         } else {
             log.error("Некорректно заполнены поля");
             throw new ValidationException("некорректно заполнены поля");
 
         }
+        return user;
     }
 
-    public void updateUser(UserDto userDto) { // +
-        if (!validateUser(userDto)) {
-            log.error("Поля пользователя {} заполнены некорректно", userDto.toString());
+    public void updateUser(User user) { // +
+        if (!validateUser(user)) {
+            log.error("Поля пользователя {} заполнены некорректно", user.toString());
             throw new ValidationException("некорректно заполнены поля");
         }
         //если имя пустое-приравняем имя к Login
-        if (!StringUtils.hasText(userDto.getName())) {
-            log.debug("Имя пользователя {} пустое", userDto);
-            userDto.setName(userDto.getLogin());
-            log.debug("Имя изменяемого пользователя приравняли логину: name = {}", userDto.getName());
+        if (!StringUtils.hasText(user.getName())) {
+            log.debug("Имя пользователя {} пустое", user);
+            user.setName(user.getLogin());
+            log.debug("Имя изменяемого пользователя приравняли логину: name = {}", user.getName());
         }
-        userRepository.update(UserMapper.mapToUser(userDto));
+        userRepository.update(user);
     }
 
-    public UserDto getUserById(int userId) { // +
+    public User getUserById(int userId) { // +
         Set<Integer> friends = friendshipRepository.getFriendsById(userId); // нашли список друзей
         return userRepository.findById(userId)
                 .map(user -> {
                     user.setFriends(friends); // добавление нового поля
-                    return UserMapper.mapToUserDto(user);
+                    return user;
                 })
                 .orElseThrow(() -> new NoFoundIdException("Пользователь не найден с ID: " + userId));
     }
 
-    public void addFriendById(FriendshipDto dto) {
-        friendshipRepository.save(FriendshipMapper.mapToFriendship(dto));
+    public void addFriendById(Friendship friendship) {
+        friendshipRepository.save(friendship);
     }
 
     public Set<Integer> getFriendsById(int id) {
         return friendshipRepository.getFriendsById(id);
     }
 
-    public void deleteFriendById(int userId1, int userId2) {
-        friendshipRepository.deleteFriendById(userId1, userId2);
+    public void deleteFriendById(Friendship friendship) {
+        friendshipRepository.deleteFriendById(friendship);
     }
 
-    public Set<Integer> getMutualFriends(int userId1, int userId2) {
-        return friendshipRepository.findMutualFriends(userId1, userId2);
+    public Set<Integer> getMutualFriends(Friendship friendship) {
+        return friendshipRepository.findMutualFriends(friendship);
     }
 
 
-    public boolean validateUser(UserDto user) {
+    public boolean validateUser(User user) {
         // Проверка электронной почты
         if (!StringUtils.hasText(user.getEmail()) || !user.getEmail().contains("@")) {
             log.error("Не заполнено email или заполнен некорректно");
