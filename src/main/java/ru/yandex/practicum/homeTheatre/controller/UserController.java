@@ -73,7 +73,7 @@ public class UserController {
         friendship.setUserId1(yourId);
         friendship.setUserId2(friendId);
         userService.addFriendById(friendship);
-        return "Пользователь "+yourId+" добавил пользователя "+friendId+" в друзья";
+        return "Пользователь " + yourId + " добавил пользователя " + friendId + " в друзья";
     }
 
     @DeleteMapping("/users/{id}/friends/{friendId}") // +
