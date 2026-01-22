@@ -76,7 +76,11 @@ public class UserService {
     }
 
     public void addFriendById(Friendship friendship) {
-        friendshipRepository.save(friendship);
+        if (getUserById(friendship.getUserId1()) == null || getUserById(friendship.getUserId2()) == null) {
+            throw new NoFoundIdException("Пользователи с такими id не найдены");
+        } else {
+            friendshipRepository.save(friendship);
+        }
     }
 
     public Set<Integer> getFriendsById(int id) {
