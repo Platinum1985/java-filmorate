@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.homeTheatre.exceptions.InternalServerException;
+import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.model.Friendship;
 
 import java.util.Set;
@@ -23,6 +24,7 @@ public class FriendshipRepository extends ru.yandex.practicum.homeTheatre.dal.Ba
                     "JOIN friendships t2 ON t1.userId_2 = t2.userId_2 " +
                     "WHERE t1.userId_1 = ? " +
                     "AND t2.userId_1 = ?";
+    private static final String CHECKING_USER_1 = "SELECT COUNT(*) FROM friendships WHERE userId_1 = ?";
 
     public FriendshipRepository(JdbcTemplate jdbc, RowMapper<Friendship> mapper) {
         super(jdbc, mapper);
@@ -54,11 +56,16 @@ public class FriendshipRepository extends ru.yandex.practicum.homeTheatre.dal.Ba
     }
 
     public Set<Integer> findMutualFriends(Friendship friendship) {
+        Integer count1 = jdbc.queryForObject(CHECKING_USER_1, Integer.class, friendship.getUserId1());
+        Integer count2 = jdbc.queryForObject(CHECKING_USER_1, Integer.class, friendship.getUserId2());
+        if (count1 == 0 || count2 == 0) {
+            throw new NoFoundIdException("Пользователи с такими id не имеют друзей");
+        } else {
 
-
-        return jdbc.query(FIND_COMMON_FRIENDS_QUERY, (rs, rowNum) -> rs.getInt("common_friend"), friendship.getUserId1(), friendship.getUserId2())
-                .stream()
-                .collect(Collectors.toSet());
+            return jdbc.query(FIND_COMMON_FRIENDS_QUERY, (rs, rowNum) -> rs.getInt("common_friend"), friendship.getUserId1(), friendship.getUserId2())
+                    .stream()
+                    .collect(Collectors.toSet());
+        }
     }
 }
 

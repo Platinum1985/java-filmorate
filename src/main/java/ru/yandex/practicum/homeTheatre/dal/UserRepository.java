@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.homeTheatre.exceptions.InternalServerException;
+import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.model.User;
 
 import java.util.List;
@@ -43,14 +44,18 @@ public class UserRepository extends ru.yandex.practicum.homeTheatre.dal.BaseRepo
     }
 
     public void update(User user) {
-        update(
-                UPDATE_QUERY,
-                user.getName(),
-                user.getEmail(),
-                user.getLogin(),
-                user.getBirthday(),
-                user.getId()
-        );
+        if (findById(user.getId()).isEmpty()) {
+            throw new NoFoundIdException("пользователь с id = " + user.getId() + " не найден для обновления");
+        } else {
+            update(
+                    UPDATE_QUERY,
+                    user.getName(),
+                    user.getEmail(),
+                    user.getLogin(),
+                    user.getBirthday(),
+                    user.getId()
+            );
+        }
     }
 
     public void removeUserById(int id) {
