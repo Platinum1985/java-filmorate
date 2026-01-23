@@ -14,6 +14,7 @@ import ru.yandex.practicum.homeTheatre.model.User;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -83,11 +84,16 @@ public class UserService {
         }
     }
 
-    public Set<Integer> getFriendsById(int id) {
+    public Set<User> getFriendsById(int id) {
         if (getUserById(id) == null) {
             throw new NoFoundIdException("Пользователь с таким id не найден");
         } else {
-            return friendshipRepository.getFriendsById(id);
+            Set<Integer> friendIds = friendshipRepository.getFriendsById(id);
+            Set<User> friends = new HashSet<>();
+            for (int i : friendIds) {
+                friends.add(getUserById(i));
+            }
+            return friends;
         }
     }
 
