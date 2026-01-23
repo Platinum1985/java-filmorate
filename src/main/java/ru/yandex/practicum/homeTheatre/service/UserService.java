@@ -92,12 +92,12 @@ public class UserService {
     }
 
     public Set<Integer> getMutualFriends(int id1, int id2) {
-        if(userRepository.findById(id1).isEmpty() || userRepository.findById(id2).isEmpty()){
-
+        if (userRepository.findById(id1).isEmpty() || userRepository.findById(id2).isEmpty()) {
+            throw new NoFoundIdException("Пользователей с такими id нет");
+        } else {
+            return friendshipRepository.findMutualFriends(id1, id2);
         }
-        return friendshipRepository.findMutualFriends(id1, id2);
     }
-
 
     public boolean validateUser(User user) {
         // Проверка электронной почты
