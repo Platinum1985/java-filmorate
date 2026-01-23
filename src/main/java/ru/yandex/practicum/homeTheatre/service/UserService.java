@@ -101,11 +101,16 @@ public class UserService {
         friendshipRepository.deleteFriendById(friendship);
     }
 
-    public Set<Integer> getMutualFriends(int id1, int id2) {
+    public Set<User> getMutualFriends(int id1, int id2) {
         if (userRepository.findById(id1).isEmpty() || userRepository.findById(id2).isEmpty()) {
             throw new NoFoundIdException("Пользователей с такими id нет");
         } else {
-            return friendshipRepository.findMutualFriends(id1, id2);
+            Set<Integer> friendIds = friendshipRepository.findMutualFriends(id1, id2);
+            Set<User> friends = new HashSet<>();
+            for (int i : friendIds) {
+                friends.add(getUserById(i));
+            }
+            return friends;
         }
     }
 
