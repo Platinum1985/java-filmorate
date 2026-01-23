@@ -84,7 +84,11 @@ public class UserService {
     }
 
     public Set<Integer> getFriendsById(int id) {
-        return friendshipRepository.getFriendsById(id);
+        if (getUserById(id) == null) {
+            throw new NoFoundIdException("Пользователь с таким id не найден");
+        } else {
+            return friendshipRepository.getFriendsById(id);
+        }
     }
 
     public void deleteFriendById(Friendship friendship) {
