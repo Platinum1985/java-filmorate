@@ -91,8 +91,11 @@ public class UserService {
         friendshipRepository.deleteFriendById(friendship);
     }
 
-    public Set<Integer> getMutualFriends(Friendship friendship) {
-        return friendshipRepository.findMutualFriends(friendship);
+    public Set<Integer> getMutualFriends(int id1, int id2) {
+        if(userRepository.findById(id1).isEmpty() || userRepository.findById(id2).isEmpty()){
+
+        }
+        return friendshipRepository.findMutualFriends(id1, id2);
     }
 
 

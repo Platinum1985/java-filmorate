@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.homeTheatre.exceptions.InternalServerException;
-import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.model.Friendship;
 
 import java.util.Set;
@@ -19,12 +18,11 @@ public class FriendshipRepository extends ru.yandex.practicum.homeTheatre.dal.Ba
     private static final String GET_FRIENDS_BY_USERID = "SELECT userId_1 FROM friendships WHERE userId_2 = ?"; // ---
     private static final String DELETE_QUERY = "DELETE FROM friendships WHERE userId_1 = ? AND userId_2 = ?";
     private static final String FIND_COMMON_FRIENDS_QUERY =
-            "SELECT t1.userId_2 AS common_friend " +
+            "SELECT t1.userId_1 AS common_friend " +  // ---2 na 1
                     "FROM friendships t1 " +
-                    "JOIN friendships t2 ON t1.userId_2 = t2.userId_2 " +
-                    "WHERE t1.userId_1 = ? " +
-                    "AND t2.userId_1 = ?";
-    private static final String CHECKING_USER_1 = "SELECT COUNT(*) FROM friendships WHERE userId_1 = ?";
+                    "JOIN friendships t2 ON t1.userId_1 = t2.userId_1 " + // ---1 na 2
+                    "WHERE t1.userId_2 = ? " + // --- 1 na 2
+                    "AND t2.userId_2 = ?"; // --- 1 na 2
 
     public FriendshipRepository(JdbcTemplate jdbc, RowMapper<Friendship> mapper) {
         super(jdbc, mapper);
@@ -55,17 +53,11 @@ public class FriendshipRepository extends ru.yandex.practicum.homeTheatre.dal.Ba
         }
     }
 
-    public Set<Integer> findMutualFriends(Friendship friendship) {
-        Integer count1 = jdbc.queryForObject(CHECKING_USER_1, Integer.class, friendship.getUserId1());
-        Integer count2 = jdbc.queryForObject(CHECKING_USER_1, Integer.class, friendship.getUserId2());
-        if (count1 == 0 || count2 == 0) {
-            throw new NoFoundIdException("Пользователи с такими id не имеют друзей");
-        } else {
-
-            return jdbc.query(FIND_COMMON_FRIENDS_QUERY, (rs, rowNum) -> rs.getInt("common_friend"), friendship.getUserId1(), friendship.getUserId2())
-                    .stream()
-                    .collect(Collectors.toSet());
-        }
+    public Set<Integer> findMutualFriends(int id1, int id2) {
+        return jdbc.query(FIND_COMMON_FRIENDS_QUERY, (rs, rowNum) -> rs.getInt("common_friend"), id1, id2)
+                .stream()
+                .collect(Collectors.toSet());
     }
 }
+
 

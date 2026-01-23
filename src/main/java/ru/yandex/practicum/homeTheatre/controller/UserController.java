@@ -61,10 +61,7 @@ public class UserController {
 
     @GetMapping("/users/{id}/friends/common/{otherId}")
     public Set<Integer> getMutualFriends(@PathVariable("id") int id1, @PathVariable("otherId") int id2) {
-        Friendship friendship = new Friendship();
-        friendship.setUserId1(id1);
-        friendship.setUserId2(id2);
-        return userService.getMutualFriends(friendship);
+        return userService.getMutualFriends(id1, id2);
     }
 
     @PutMapping("/users/{id}/friends/{friendId}") // +
