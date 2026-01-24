@@ -40,7 +40,7 @@ public class UserService {
     }
 
 
-    public User addUser(User user) { // ++
+    public User addUser(User user) { // +
         if (validateUser(user)) {
             log.info("Валидация пользователя {} прошла успешно", user);
             userRepository.save(user);
