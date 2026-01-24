@@ -67,36 +67,37 @@ public class UserService {
         userRepository.update(user);
     }
 
-    public User getUserById(int userId) { // +
+    public User getUserById(int userId) {
+        System.out.println("ПЕРЕД ПОВТОРОМ");
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
             throw new NoFoundIdException("Пользователь с таким id не найден");
         } else {
-            user.get().setFriends(getFriendsById(userId));
+            System.out.println("ПОСЛЕ ELSE");
+            System.out.println("user= " + user.get());
         }
         return user.get();
-
     }
 
-    public void addFriendById(Friendship friendship) {
-        if (getUserById(friendship.getUserId1()) == null || getUserById(friendship.getUserId2()) == null) {
+
+    public void addFriendById(int yourId, int friendId) {
+        User user = getUserById(yourId);
+        User friend = getUserById(friendId);
+
+        if (user == null || friend == null) {
             throw new NoFoundIdException("Пользователи с такими id не найдены");
         } else {
-            friendshipRepository.save(friendship);
+            friendshipRepository.save(yourId, friendId);
         }
     }
 
     public Set<User> getFriendsById(int id) {
-        if (getUserById(id) == null) {
-            throw new NoFoundIdException("Пользователь с таким id не найден");
-        } else {
-            Set<Integer> friendIds = friendshipRepository.getFriendsById(id);
-            Set<User> friends = new HashSet<>();
-            for (int i : friendIds) {
-                friends.add(getUserById(i));
-            }
-            return friends;
+        Set<Integer> friendIds = friendshipRepository.getFriendsById(id);
+        Set<User> friends = new HashSet<>();
+        for (int i : friendIds) {
+            friends.add(getUserById(i));
         }
+        return friends;
     }
 
     public void deleteFriendById(Friendship friendship) {
@@ -120,6 +121,11 @@ public class UserService {
         // Проверка электронной почты
         if (!StringUtils.hasText(user.getEmail()) || !user.getEmail().contains("@")) {
             log.error("Не заполнено email или заполнен некорректно");
+            return false;
+        }
+
+        if (!StringUtils.hasText(user.getName())) { // +++
+            log.error("Не заполнено name или заполнен некорректно");
             return false;
         }
 

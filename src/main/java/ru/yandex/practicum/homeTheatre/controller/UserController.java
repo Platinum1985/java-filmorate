@@ -65,12 +65,9 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}/friends/{friendId}") // +
-    public String addFriendById(@PathVariable("id") int yourId, @PathVariable("friendId") int friendId) {
-        Friendship friendship = new Friendship();
-        friendship.setUserId1(yourId);
-        friendship.setUserId2(friendId);
-        userService.addFriendById(friendship);
-        return "Пользователь " + yourId + " добавил пользователя " + friendId + " в друзья";
+    public void addFriendById(@PathVariable("id") int yourId, @PathVariable("friendId") int friendId) {
+        System.out.println("вызов контроллера");
+        userService.addFriendById(yourId, friendId);
     }
 
     @DeleteMapping("/users/{id}/friends/{friendId}") // +

@@ -29,10 +29,10 @@ public class FriendshipRepository extends ru.yandex.practicum.homeTheatre.dal.Ba
 
     }
 
-    public void save(Friendship friendship) {
-        Integer count = jdbc.queryForObject(CHECKING_CONTAINS_USER_IDS_IN_TABLE, Integer.class, friendship.getUserId1(), friendship.getUserId2());
+    public void save(int yourId, int friendId) {
+        Integer count = jdbc.queryForObject(CHECKING_CONTAINS_USER_IDS_IN_TABLE, Integer.class, yourId, friendId);
         if (count == 0) {
-            jdbc.update(INSERT_QUERY_ADD_FRIENDSHIP, friendship.getUserId1(), friendship.getUserId2());
+            jdbc.update(INSERT_QUERY_ADD_FRIENDSHIP, yourId, friendId);
         } else {
             System.out.println("Строка с такими значениями уже есть в таблице"); // хз какую ошибку и код
 
