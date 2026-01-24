@@ -13,10 +13,7 @@ import ru.yandex.practicum.homeTheatre.model.User;
 
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -28,7 +25,11 @@ public class UserService {
     public Collection<User> getAllUsers() {
         List<User> users = userRepository.findAll();
         for (User user : users) {
-            Set<Integer> friends = friendshipRepository.getFriendsById(user.getId());
+            Set<Integer> friendIds = friendshipRepository.getFriendsById(user.getId());
+            Set<User> friends = new HashSet<>();
+            for (int i : friendIds) {
+                friends.add(userRepository.findById(i).get());
+            }
             user.setFriends(friends);
         }
         return users;
@@ -67,13 +68,14 @@ public class UserService {
     }
 
     public User getUserById(int userId) { // +
-        Set<Integer> friends = friendshipRepository.getFriendsById(userId); // нашли список друзей
-        return userRepository.findById(userId)
-                .map(user -> {
-                    user.setFriends(friends); // добавление нового поля
-                    return user;
-                })
-                .orElseThrow(() -> new NoFoundIdException("Пользователь не найден с ID: " + userId));
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new NoFoundIdException("Пользователь с таким id не найден");
+        } else {
+            user.get().setFriends(getFriendsById(userId));
+        }
+        return user.get();
+
     }
 
     public void addFriendById(Friendship friendship) {
