@@ -93,15 +93,26 @@ public class UserService {
 
     public Set<User> getFriendsById(int id) {
         Set<Integer> friendIds = friendshipRepository.getFriendsById(id);
-        Set<User> friends = new HashSet<>();
-        for (int i : friendIds) {
-            friends.add(getUserById(i));
+        if (friendIds.isEmpty()) {
+            throw new NoFoundIdException("У пользователя нет друзей"); // ++
+        } else {
+            Set<User> friends = new HashSet<>();
+            for (int i : friendIds) {
+                friends.add(getUserById(i));
+            }
+            return friends;
         }
-        return friends;
     }
 
     public void deleteFriendById(Friendship friendship) {
-        friendshipRepository.deleteFriendById(friendship);
+        User user = getUserById(friendship.getUserId1()); // ++  602, 650
+        User friend = getUserById(friendship.getUserId2());
+
+        if (user == null || friend == null) {
+            throw new NoFoundIdException("Пользователи с такими id не найдены");
+        } else {
+            friendshipRepository.deleteFriendById(friendship);
+        }
     }
 
     public Set<User> getMutualFriends(int id1, int id2) {

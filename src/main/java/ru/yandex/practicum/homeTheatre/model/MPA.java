@@ -7,5 +7,5 @@ import org.springframework.stereotype.Component;
 @Component
 public class MPA {
     private int id;
-    private String rating;
+    private String name;
 }
