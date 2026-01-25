@@ -14,7 +14,7 @@ import java.util.Set;
 public class FilmGenreService {
     private final FilmGenreRepository filmGenreRepository;
 
-    public Set<Integer> getGenresByFilmId(int filmId) {
+    public Set<FilmGenre> getGenresByFilmId(int filmId) {
         return filmGenreRepository.getGenresByFilmId(filmId);
     }
 

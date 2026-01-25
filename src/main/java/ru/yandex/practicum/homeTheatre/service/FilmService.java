@@ -5,15 +5,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.yandex.practicum.homeTheatre.dal.*;
+import ru.yandex.practicum.homeTheatre.dto.GenreDto;
+import ru.yandex.practicum.homeTheatre.dto.MpaDto;
 import ru.yandex.practicum.homeTheatre.exceptions.ValidationException;
-import ru.yandex.practicum.homeTheatre.model.Film;
-import ru.yandex.practicum.homeTheatre.model.FilmGenre;
-import ru.yandex.practicum.homeTheatre.model.FilmMPA;
+import ru.yandex.practicum.homeTheatre.mapperDto.GenreMapper;
+import ru.yandex.practicum.homeTheatre.mapperDto.MpaMapper;
+import ru.yandex.practicum.homeTheatre.model.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -28,24 +31,28 @@ public class FilmService {
         List<Film> films = filmRepository.findAll();
         for (Film film : films) {
             int filmId = film.getId();
-            Set<Integer> genres = filmGenreRepository.getGenresByFilmId(filmId);
+            Set<FilmGenre> genres = filmGenreRepository.getGenresByFilmId(filmId);
             Set<Integer> likes = likeRepository.getUserIdsByFilmId(filmId);
-            int mpaId = filmMpaRepository.findMPAByFilmId(filmId).getMpaId();
-            film.setLikes(likes);
-            film.setGenres(genres);
-            film.setMpa(mpaId);
+            FilmMPA filmMPA = filmMpaRepository.findMPAByFilmId(filmId);
+            film.setMpa(MpaMapper.mapToMpaDto(filmMPA));
+            Set<GenreDto> genreDtos = genres.stream()
+                    .map(GenreMapper::mapToFilmGenre)
+                    .collect(Collectors.toSet());
+            film.setGenres(genreDtos);
         }
         return films;
     }
 
     public Film getFilm(int filmId) { // +
-        Set<Integer> genres = filmGenreRepository.getGenresByFilmId(filmId);
-        Set<Integer> likes = likeRepository.getUserIdsByFilmId(filmId);
-        int mpaId = filmMpaRepository.findMPAByFilmId(filmId).getMpaId();
         Film film = filmRepository.getFilmById(filmId);
-        film.setLikes(likes);
-        film.setGenres(genres);
-        film.setMpa(mpaId);
+        Set<FilmGenre> genres = filmGenreRepository.getGenresByFilmId(filmId);
+        FilmMPA filmMPA = filmMpaRepository.findMPAByFilmId(filmId);
+        film.setMpa(MpaMapper.mapToMpaDto(filmMPA));
+        Set<GenreDto> genreDtos = genres.stream()
+                .map(GenreMapper::mapToFilmGenre)
+                .collect(Collectors.toSet());
+        film.setGenres(genreDtos);
+        film.setLikes(likeRepository.getUserIdsByFilmId(filmId));
         return film;
     }
 
@@ -57,18 +64,13 @@ public class FilmService {
             // сохраняем новую публикацию в памяти приложения
             // надо бы проверить на дубликаты во всех таблицах перед добавлением
             filmRepository.save(film);
-            Set<Integer> genres = film.getGenres();
-            for (int genreId : genres) {
-                FilmGenre filmGenre = new FilmGenre();
-                filmGenre.setFilmId(film.getId());
-                filmGenre.setGenreId(genreId);
+            Set<GenreDto> genres = film.getGenres();
+            for (GenreDto genre : genres) {
+                FilmGenre filmGenre = GenreMapper.mapToFilmGenre(genre, film.getId());
                 filmGenreRepository.save(filmGenre);
             }
-            int mpaId = film.getMpa();
-            FilmMPA filmMpa = new FilmMPA();
-            filmMpa.setFilmId(film.getId());
-            filmMpa.setMpaId(mpaId);
-            filmMpaRepository.save(filmMpa);
+            MpaDto mpaDto = film.getMpa();
+            filmMpaRepository.save(MpaMapper.mapToFilmMPA(mpaDto, film.getId()));
 
         } else {
             log.error("некорректно заполнены поля");
@@ -86,19 +88,15 @@ public class FilmService {
             log.error("Некорректно заполнены поля фильма {}", film);
             throw new ValidationException("некорректно заполнены поля");
         } else {
-            Set<Integer> genres = film.getGenres();
-            for (int genreId : genres) {
-                FilmGenre filmGenre = new FilmGenre();
-                filmGenre.setFilmId(film.getId());
-                filmGenre.setGenreId(genreId);
+            Set<GenreDto> genres = film.getGenres();
+            for (GenreDto genre : genres) {
+                FilmGenre filmGenre = GenreMapper.mapToFilmGenre(genre, film.getId());
                 filmGenreRepository.update(filmGenre);
             }
-            int mpaId = film.getMpa();
-            FilmMPA filmMpa = new FilmMPA();
-            filmMpa.setFilmId(film.getId());
-            filmMpa.setMpaId(mpaId);
-            filmMpaRepository.update(filmMpa);
 
+            MpaDto mpaDto = film.getMpa();
+            FilmMPA filmMpa = MpaMapper.mapToFilmMPA(mpaDto, film.getId());
+            filmMpaRepository.update(filmMpa);
         }
     }
 
@@ -142,33 +140,24 @@ public class FilmService {
         }
 
         // Продолжительность фильма должна быть положительным числом
-        if (f.getDuration() == null || f.getDuration() <= 0) {
+        if (f.getDuration() <= 0) {
             log.error("Продолжительность фильма не заполнена или заполнена некорректно");
             return false;
         }
 
         // Проверка поля mpa
-        if (f.getMpa() < 1 || f.getMpa() > 5) {
+        MpaDto mpa = f.getMpa();
+        if (mpa == null || mpa.getId() < 1 || mpa.getId() > 5) {
             log.error("Значение поля mpa должно быть целое число от 1 до 5");
             return false;
         }
 
         // Проверка поля genres
-        if (f.getGenres() == null || f.getGenres().isEmpty()) {
-            log.error("Список жанров пуст или не указан");
+        Set<GenreDto> genres = f.getGenres();
+        if (genres == null || genres.isEmpty() || genres.size() > 6) {
+            log.error("Список жанров пуст или количество жанров превышает допустимое значение (не более 5)");
             return false;
         }
-        if (f.getGenres().size() > 6) {
-            log.error("Количество жанров превышает допустимое значение (не более 6)");
-            return false;
-        }
-        for (Integer genre : f.getGenres()) {
-            if (genre == null || genre < 1 || genre > 6) {
-                log.error("Жанр должен быть положительным числом в интервале от 1 до 6");
-                return false;
-            }
-        }
-
         return true; // Все проверки пройдены успешно
     }
 }

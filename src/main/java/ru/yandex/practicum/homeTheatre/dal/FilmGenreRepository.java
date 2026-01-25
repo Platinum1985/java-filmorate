@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class FilmGenreRepository extends ru.yandex.practicum.homeTheatre.dal.BaseRepository<FilmGenre> {
     private static final String CHECKING_CONTAINS_IDS_IN_TABLE = "SELECT COUNT(*) FROM film_genre WHERE filmId = ? AND genreId = ?";
     private static final String INSERT_QUERY_ADD_GENRE = "INSERT INTO film_genre (filmId, genreId) VALUES (?, ?)";
-    private static final String GET_GENRES_BY_FILM_ID = "SELECT genreId FROM film_genre WHERE filmId = ?";
+    private static final String GET_GENRES_BY_FILM_ID = "SELECT * FROM film_genre WHERE filmId = ?";
     private static final String UPDATE_QUERY = "UPDATE film_genre SET filmId = ?, genreId = ? WHERE id = ?";
 
     public FilmGenreRepository(JdbcTemplate jdbc, RowMapper<FilmGenre> mapper) {
@@ -33,10 +33,13 @@ public class FilmGenreRepository extends ru.yandex.practicum.homeTheatre.dal.Bas
 
     }
 
-    public Set<Integer> getGenresByFilmId(int filmId) {
-        return jdbc.query(GET_GENRES_BY_FILM_ID, (rs, rowNum) -> rs.getInt("genreId"), filmId)
-                .stream()
-                .collect(Collectors.toSet());
+    public Set<FilmGenre> getGenresByFilmId(int filmId) {
+        return jdbc.query(GET_GENRES_BY_FILM_ID, (rs, rowNum) -> {
+            FilmGenre filmGenre = new FilmGenre();
+            filmGenre.setFilmId(rs.getInt("filmId"));
+            filmGenre.setGenreId(rs.getInt("genreId"));
+            return filmGenre;
+        }, filmId).stream().collect(Collectors.toSet());
     }
 
     public void update(FilmGenre filmGenre) {

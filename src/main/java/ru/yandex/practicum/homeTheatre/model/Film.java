@@ -2,6 +2,8 @@ package ru.yandex.practicum.homeTheatre.model;
 
 import lombok.Data;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.homeTheatre.dto.GenreDto;
+import ru.yandex.practicum.homeTheatre.dto.MpaDto;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -14,8 +16,8 @@ public class Film {
     private String name;
     private String description;
     private LocalDate releaseDate;
-    private Long duration;
-    private Set<Integer> likes = new HashSet<>();
-    private int mpa; // добавить обработку и валидацию
-    private Set<Integer> genres = new HashSet<>(); // добавить обработку и валидацию
+    private int duration;
+    private MpaDto mpa; // Предполагаем, что Mpa - это отдельный класс для объекта mpa в JSON
+    private Set<GenreDto> genres = new HashSet<>(); // Предполагаем, что Genre - это отдельный класс для объектов в массиве genres
+    private Set<Integer> likes= new HashSet<>();
 }
