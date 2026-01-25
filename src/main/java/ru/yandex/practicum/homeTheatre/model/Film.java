@@ -19,5 +19,5 @@ public class Film {
     private int duration;
     private MpaDto mpa; // Предполагаем, что Mpa - это отдельный класс для объекта mpa в JSON
     private Set<GenreDto> genres = new HashSet<>(); // Предполагаем, что Genre - это отдельный класс для объектов в массиве genres
-    private Set<Integer> likes= new HashSet<>();
+    private Set<Integer> likes = new HashSet<>();
 }
