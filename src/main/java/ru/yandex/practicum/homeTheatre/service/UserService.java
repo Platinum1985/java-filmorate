@@ -92,12 +92,16 @@ public class UserService {
     }
 
     public Set<User> getFriendsById(int id) {
-        Set<Integer> friendIds = friendshipRepository.getFriendsById(id);
-        Set<User> friends = new HashSet<>();
-        for (int i : friendIds) {
-            friends.add(getUserById(i));
+        if (userRepository.findById(id).isEmpty()) {
+            throw new NoFoundIdException("Такого пользователя нет");
+        } else {
+            Set<Integer> friendIds = friendshipRepository.getFriendsById(id);
+            Set<User> friends = new HashSet<>();
+            for (int i : friendIds) {
+                friends.add(getUserById(i));
+            }
+            return friends;
         }
-        return friends;
     }
 
     public void deleteFriendById(Friendship friendship) {
