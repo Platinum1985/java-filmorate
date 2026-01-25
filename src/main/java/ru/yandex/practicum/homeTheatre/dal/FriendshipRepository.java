@@ -4,7 +4,6 @@ package ru.yandex.practicum.homeTheatre.dal;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.homeTheatre.exceptions.InternalServerException;
 import ru.yandex.practicum.homeTheatre.model.Friendship;
 
 import java.util.Set;
