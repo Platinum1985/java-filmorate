@@ -52,6 +52,7 @@ public class FilmService {
                 .collect(Collectors.toList());
         FilmMPA filmMPA = filmMpaRepository.findMPAByFilmId(filmId);
         film.setMpa(MpaMapper.mapToMpaDto(filmMPA));
+        System.out.println(film.getMpa() + "++++++++++++");
         List<GenreDto> genreDtos = genres.stream()
                 .map(GenreMapper::mapToFilmGenre)
                 .collect(Collectors.toList());
@@ -69,10 +70,7 @@ public class FilmService {
 
         } else {
             log.info("Валидация фильма {} прошла успешно", film);
-            // формируем дополнительные данные
             log.info("Фильму {} присвоен id {}", film, film.getId());
-            // сохраняем новую публикацию в памяти приложения
-            // надо бы проверить на дубликаты во всех таблицах перед добавлением
             filmRepository.save(film);
             List<GenreDto> genres = film.getGenres();
             for (GenreDto genre : genres) {
@@ -91,15 +89,18 @@ public class FilmService {
     }
 
     public void updateFilm(Film film) {
-        // checkFilmId(film.getId());
+        checkFilmId(film.getId());
         validateMpa(film.getMpa());
         if (!validateFilm(film)) {
             log.error("Некорректно заполнены поля фильма {}", film);
             throw new ValidationException("некорректно заполнены поля");
         } else {
             MpaDto mpaDto = film.getMpa();
+            System.out.println("после MpaDto mpaDto = film.getMpa();" + mpaDto);
             FilmMPA filmMpa = MpaMapper.mapToFilmMPA(mpaDto, film.getId());
+            filmMpa.setId(filmMpaRepository.findMPAByFilmId(film.getId()).getId());
             filmMpaRepository.update(filmMpa);
+            filmRepository.update(film);
         }
     }
 

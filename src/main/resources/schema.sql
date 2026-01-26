@@ -11,7 +11,8 @@ create TABLE IF NOT EXISTS films (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     releaseDate DATE NOT NULL,
-    duration BIGINT NOT NULL
+    duration BIGINT NOT NULL,
+    rate BIGINT  --- необязательное поле
 );
 create TABLE IF NOT EXISTS mpa (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,

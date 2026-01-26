@@ -18,7 +18,7 @@ public class FilmMPARepository extends ru.yandex.practicum.homeTheatre.dal.BaseR
     private static final String CHECKING_CONTAINS_IDS_IN_TABLE = "SELECT COUNT(*) FROM film_mpa WHERE filmId = ? AND mpaId = ?";
     private static final String INSERT_QUERY_ADD_MPA_BY_FILM = "INSERT INTO film_mpa (filmId, mpaId) VALUES (?, ?)";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM film_mpa WHERE filmId = ?";
-    private static final String UPDATE_QUERY = "UPDATE film_mpa SET filmId = ?, mpaId = ? WHERE id = ?";
+    private static final String UPDATE_QUERY = "UPDATE film_mpa SET filmId = ?, mpaId = ? WHERE id = ?"; //
 
     public FilmMPARepository(JdbcTemplate jdbc, RowMapper<FilmMPA> mapper) {
         super(jdbc, mapper);

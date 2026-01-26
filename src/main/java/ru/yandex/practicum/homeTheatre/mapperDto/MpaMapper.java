@@ -11,7 +11,6 @@ public class MpaMapper {
         FilmMPA filmMPA = new FilmMPA();
         filmMPA.setMpaId(mpaDto.getId());
         filmMPA.setFilmId(filmId);
-
         return filmMPA;
     }
 
