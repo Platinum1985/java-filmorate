@@ -34,13 +34,8 @@ public class FilmRepository extends ru.yandex.practicum.homeTheatre.dal.BaseRepo
         }
     }
 
-    public List<Film> findAll() {
-        List<Film> films = findMany(FIND_ALL_QUERY);
-        if (films.isEmpty()) {
-            throw new NoFoundIdException("Список фильмов пуст");
-        } else {
-            return films;
-        }
+    public List<Film> findAll() { // ++
+        return findMany(FIND_ALL_QUERY);
     }
 
     public void removeFilmById(int id) {

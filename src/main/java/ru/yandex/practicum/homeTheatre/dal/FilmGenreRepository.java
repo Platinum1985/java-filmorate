@@ -6,8 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import ru.yandex.practicum.homeTheatre.model.FilmGenre;
 
-
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
@@ -33,13 +32,13 @@ public class FilmGenreRepository extends ru.yandex.practicum.homeTheatre.dal.Bas
 
     }
 
-    public Set<FilmGenre> getGenresByFilmId(int filmId) {
+    public List<FilmGenre> getGenresByFilmId(int filmId) {
         return jdbc.query(GET_GENRES_BY_FILM_ID, (rs, rowNum) -> {
             FilmGenre filmGenre = new FilmGenre();
             filmGenre.setFilmId(rs.getInt("filmId"));
             filmGenre.setGenreId(rs.getInt("genreId"));
             return filmGenre;
-        }, filmId).stream().collect(Collectors.toSet());
+        }, filmId).stream().collect(Collectors.toList());
     }
 
     public void update(FilmGenre filmGenre) {

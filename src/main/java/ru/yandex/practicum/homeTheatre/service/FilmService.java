@@ -7,6 +7,7 @@ import org.springframework.util.StringUtils;
 import ru.yandex.practicum.homeTheatre.dal.*;
 import ru.yandex.practicum.homeTheatre.dto.GenreDto;
 import ru.yandex.practicum.homeTheatre.dto.MpaDto;
+import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.exceptions.ValidationException;
 import ru.yandex.practicum.homeTheatre.mapperDto.GenreMapper;
 import ru.yandex.practicum.homeTheatre.mapperDto.MpaMapper;
@@ -26,45 +27,54 @@ public class FilmService {
     private final FilmMPARepository filmMpaRepository;
     private final FilmGenreRepository filmGenreRepository;
     private final FilmRepository filmRepository;
+    private final MPARepository mpaRepository;
+    private final GenreRepository genreRepository;
 
     public List<Film> getAllFilms() {
         List<Film> films = filmRepository.findAll();
         for (Film film : films) {
             int filmId = film.getId();
-            Set<FilmGenre> genres = filmGenreRepository.getGenresByFilmId(filmId);
+            List<FilmGenre> genres = filmGenreRepository.getGenresByFilmId(filmId);
             Set<Integer> likes = likeRepository.getUserIdsByFilmId(filmId);
             FilmMPA filmMPA = filmMpaRepository.findMPAByFilmId(filmId);
             film.setMpa(MpaMapper.mapToMpaDto(filmMPA));
-            Set<GenreDto> genreDtos = genres.stream()
+            List<GenreDto> genreDtos = genres.stream()
                     .map(GenreMapper::mapToFilmGenre)
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toList());
             film.setGenres(genreDtos);
         }
         return films;
     }
 
-    public Film getFilm(int filmId) { // +
+    public Film getFilm(int filmId) {
         Film film = filmRepository.getFilmById(filmId);
-        Set<FilmGenre> genres = filmGenreRepository.getGenresByFilmId(filmId);
+        List<FilmGenre> genres = filmGenreRepository.getGenresByFilmId(filmId).stream()
+                .collect(Collectors.toList());
         FilmMPA filmMPA = filmMpaRepository.findMPAByFilmId(filmId);
         film.setMpa(MpaMapper.mapToMpaDto(filmMPA));
-        Set<GenreDto> genreDtos = genres.stream()
+        List<GenreDto> genreDtos = genres.stream()
                 .map(GenreMapper::mapToFilmGenre)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
         film.setGenres(genreDtos);
         film.setLikes(likeRepository.getUserIdsByFilmId(filmId));
         return film;
     }
 
     public void addFilm(Film film) { // ++
-        if (validateFilm(film)) {
+        validateMpa(film.getMpa());
+        validateGenres(film.getGenres());
+        if (!validateFilm(film)) {
+            log.error("некорректно заполнены поля");
+            throw new ValidationException("некорректно заполнены поля");
+
+        } else {
             log.info("Валидация фильма {} прошла успешно", film);
             // формируем дополнительные данные
             log.info("Фильму {} присвоен id {}", film, film.getId());
             // сохраняем новую публикацию в памяти приложения
             // надо бы проверить на дубликаты во всех таблицах перед добавлением
             filmRepository.save(film);
-            Set<GenreDto> genres = film.getGenres();
+            List<GenreDto> genres = film.getGenres();
             for (GenreDto genre : genres) {
                 FilmGenre filmGenre = GenreMapper.mapToFilmGenre(genre, film.getId());
                 filmGenreRepository.save(filmGenre);
@@ -72,9 +82,6 @@ public class FilmService {
             MpaDto mpaDto = film.getMpa();
             filmMpaRepository.save(MpaMapper.mapToFilmMPA(mpaDto, film.getId()));
 
-        } else {
-            log.error("некорректно заполнены поля");
-            throw new ValidationException("некорректно заполнены поля");
 
         }
     }
@@ -84,16 +91,12 @@ public class FilmService {
     }
 
     public void updateFilm(Film film) {
+        // checkFilmId(film.getId());
+        validateMpa(film.getMpa());
         if (!validateFilm(film)) {
             log.error("Некорректно заполнены поля фильма {}", film);
             throw new ValidationException("некорректно заполнены поля");
         } else {
-            Set<GenreDto> genres = film.getGenres();
-            for (GenreDto genre : genres) {
-                FilmGenre filmGenre = GenreMapper.mapToFilmGenre(genre, film.getId());
-                filmGenreRepository.update(filmGenre);
-            }
-
             MpaDto mpaDto = film.getMpa();
             FilmMPA filmMpa = MpaMapper.mapToFilmMPA(mpaDto, film.getId());
             filmMpaRepository.update(filmMpa);
@@ -147,19 +150,38 @@ public class FilmService {
 
         // Проверка поля mpa
         MpaDto mpa = f.getMpa();
-        if (mpa == null || mpa.getId() < 1 || mpa.getId() > 5) {
+        if (mpa == null) {
             log.error("Значение поля mpa должно быть целое число от 1 до 5");
             return false;
         }
 
         // Проверка поля genres
-        Set<GenreDto> genres = f.getGenres();
+        /* List<GenreDto> genres = f.getGenres();
         if (genres == null || genres.isEmpty() || genres.size() > 6) {
-            log.error("Список жанров пуст или количество жанров превышает допустимое значение (не более 5)");
+            log.error("Список жанров пуст или количество жанров превышает допустимое значение (не более 6)");
             return false;
-        }
+        } */
         return true; // Все проверки пройдены успешно
     }
+
+    private void validateMpa(MpaDto mpa) {
+        if (mpaRepository.findMPAById(mpa.getId()).isEmpty()) {
+            throw new NoFoundIdException("такого MPA нет");
+        }
+    }
+
+    private void validateGenres(List<GenreDto> genres) {
+        for (GenreDto genre : genres) {
+            if (genreRepository.findGenreById(genre.getId()).isEmpty()) {
+                throw new NoFoundIdException("такого жанра нет");
+            }
+        }
+    }
+
+    private void checkFilmId(int filmId) { // будет ошибка 404 если id нет в таблице
+        filmRepository.getFilmById(filmId);
+    }
 }
+
 
 

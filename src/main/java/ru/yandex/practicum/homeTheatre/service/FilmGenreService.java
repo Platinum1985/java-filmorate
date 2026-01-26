@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.homeTheatre.dal.FilmGenreRepository;
 import ru.yandex.practicum.homeTheatre.model.FilmGenre;
 
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -14,7 +15,7 @@ import java.util.Set;
 public class FilmGenreService {
     private final FilmGenreRepository filmGenreRepository;
 
-    public Set<FilmGenre> getGenresByFilmId(int filmId) {
+    public List<FilmGenre> getGenresByFilmId(int filmId) {
         return filmGenreRepository.getGenresByFilmId(filmId);
     }
 
