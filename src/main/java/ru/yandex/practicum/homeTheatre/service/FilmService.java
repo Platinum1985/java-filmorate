@@ -6,11 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.yandex.practicum.homeTheatre.dal.*;
 import ru.yandex.practicum.homeTheatre.dto.GenreDto;
-import ru.yandex.practicum.homeTheatre.dto.MpaDto;
 import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.exceptions.ValidationException;
 import ru.yandex.practicum.homeTheatre.mapperDto.GenreMapper;
-import ru.yandex.practicum.homeTheatre.mapperDto.MpaMapper;
 import ru.yandex.practicum.homeTheatre.model.*;
 
 import java.time.LocalDate;
@@ -37,7 +35,8 @@ public class FilmService {
             List<FilmGenre> genres = filmGenreRepository.getGenresByFilmId(filmId);
             Set<Integer> likes = likeRepository.getUserIdsByFilmId(filmId);
             FilmMPA filmMPA = filmMpaRepository.findMPAByFilmId(filmId);
-            film.setMpa(MpaMapper.mapToMpaDto(filmMPA));
+            MPA mpa = mpaRepository.findMPAById(filmMPA.getMpaId()).get(); // -------
+            film.setMpa(mpa);
             List<GenreDto> genreDtos = genres.stream()
                     .map(GenreMapper::mapToFilmGenre)
                     .collect(Collectors.toList());
@@ -51,7 +50,8 @@ public class FilmService {
         List<FilmGenre> genres = filmGenreRepository.getGenresByFilmId(filmId).stream()
                 .collect(Collectors.toList());
         FilmMPA filmMPA = filmMpaRepository.findMPAByFilmId(filmId);
-        film.setMpa(MpaMapper.mapToMpaDto(filmMPA));
+        MPA mpa = mpaRepository.findMPAById(filmMPA.getMpaId()).get(); // -------
+        film.setMpa(mpa);
         System.out.println(film.getMpa() + "++++++++++++");
         List<GenreDto> genreDtos = genres.stream()
                 .map(GenreMapper::mapToFilmGenre)
@@ -62,7 +62,8 @@ public class FilmService {
     }
 
     public void addFilm(Film film) { // ++
-        validateMpa(film.getMpa());
+        MPA mpa = film.getMpa();
+        validateMpa(mpa);
         validateGenres(film.getGenres());
         if (!validateFilm(film)) {
             log.error("некорректно заполнены поля");
@@ -77,9 +78,10 @@ public class FilmService {
                 FilmGenre filmGenre = GenreMapper.mapToFilmGenre(genre, film.getId());
                 filmGenreRepository.save(filmGenre);
             }
-            MpaDto mpaDto = film.getMpa();
-            filmMpaRepository.save(MpaMapper.mapToFilmMPA(mpaDto, film.getId()));
-
+            FilmMPA filmMPA = new FilmMPA();
+            filmMPA.setMpaId(mpa.getId());
+            filmMPA.setFilmId(film.getId());
+            filmMpaRepository.save(filmMPA);
 
         }
     }
@@ -88,16 +90,18 @@ public class FilmService {
         filmRepository.removeFilmById(id);
     }
 
-    public void updateFilm(Film film) {
+    public void updateFilm(Film film) { // ++
         checkFilmId(film.getId());
         validateMpa(film.getMpa());
         if (!validateFilm(film)) {
             log.error("Некорректно заполнены поля фильма {}", film);
             throw new ValidationException("некорректно заполнены поля");
         } else {
-            MpaDto mpaDto = film.getMpa();
-            System.out.println("после MpaDto mpaDto = film.getMpa();" + mpaDto);
-            FilmMPA filmMpa = MpaMapper.mapToFilmMPA(mpaDto, film.getId());
+            MPA mpa = film.getMpa();
+
+            FilmMPA filmMpa = new FilmMPA();
+            filmMpa.setMpaId(mpa.getId());
+            filmMpa.setFilmId(film.getId());
             filmMpa.setId(filmMpaRepository.findMPAByFilmId(film.getId()).getId());
             filmMpaRepository.update(filmMpa);
             filmRepository.update(film);
@@ -148,14 +152,6 @@ public class FilmService {
             log.error("Продолжительность фильма не заполнена или заполнена некорректно");
             return false;
         }
-
-        // Проверка поля mpa
-        MpaDto mpa = f.getMpa();
-        if (mpa == null) {
-            log.error("Значение поля mpa должно быть целое число от 1 до 5");
-            return false;
-        }
-
         // Проверка поля genres
         /* List<GenreDto> genres = f.getGenres();
         if (genres == null || genres.isEmpty() || genres.size() > 6) {
@@ -165,7 +161,7 @@ public class FilmService {
         return true; // Все проверки пройдены успешно
     }
 
-    private void validateMpa(MpaDto mpa) {
+    private void validateMpa(MPA mpa) {
         if (mpaRepository.findMPAById(mpa.getId()).isEmpty()) {
             throw new NoFoundIdException("такого MPA нет");
         }
