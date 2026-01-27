@@ -5,16 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.yandex.practicum.homeTheatre.dal.*;
-import ru.yandex.practicum.homeTheatre.dto.GenreDto;
 import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.exceptions.ValidationException;
-import ru.yandex.practicum.homeTheatre.mapperDto.GenreMapper;
 import ru.yandex.practicum.homeTheatre.model.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,31 +30,37 @@ public class FilmService {
         List<Film> films = filmRepository.findAll();
         for (Film film : films) {
             int filmId = film.getId();
-            List<FilmGenre> genres = filmGenreRepository.getGenresByFilmId(filmId);
-            Set<Integer> likes = likeRepository.getUserIdsByFilmId(filmId);
+            List<FilmGenre> filmGenres = filmGenreRepository.getGenresByFilmId(filmId).stream()
+                    .collect(Collectors.toList());
             FilmMPA filmMPA = filmMpaRepository.findMPAByFilmId(filmId);
             MPA mpa = mpaRepository.findMPAById(filmMPA.getMpaId()).get(); // -------
             film.setMpa(mpa);
-            List<GenreDto> genreDtos = genres.stream()
-                    .map(GenreMapper::mapToFilmGenre)
-                    .collect(Collectors.toList());
-            film.setGenres(genreDtos);
+            System.out.println(film.getMpa() + "++++++++++++");
+            List<Genre> genres = new ArrayList<>();
+            for (FilmGenre filmGenre : filmGenres) {
+                Genre genre = genreRepository.findGenreById(filmGenre.getFilmId()).get();
+                genres.add(genre);
+            }
+            film.setGenres(genres);
+            film.setLikes(likeRepository.getUserIdsByFilmId(filmId));
         }
         return films;
     }
 
     public Film getFilm(int filmId) {
         Film film = filmRepository.getFilmById(filmId);
-        List<FilmGenre> genres = filmGenreRepository.getGenresByFilmId(filmId).stream()
+        List<FilmGenre> filmGenres = filmGenreRepository.getGenresByFilmId(filmId).stream()
                 .collect(Collectors.toList());
         FilmMPA filmMPA = filmMpaRepository.findMPAByFilmId(filmId);
         MPA mpa = mpaRepository.findMPAById(filmMPA.getMpaId()).get(); // -------
         film.setMpa(mpa);
         System.out.println(film.getMpa() + "++++++++++++");
-        List<GenreDto> genreDtos = genres.stream()
-                .map(GenreMapper::mapToFilmGenre)
-                .collect(Collectors.toList());
-        film.setGenres(genreDtos);
+        List<Genre> genres = new ArrayList<>();
+        for (FilmGenre filmGenre : filmGenres) {
+            Genre genre = genreRepository.findGenreById(filmGenre.getFilmId()).get();
+            genres.add(genre);
+        }
+        film.setGenres(genres);
         film.setLikes(likeRepository.getUserIdsByFilmId(filmId));
         return film;
     }
@@ -73,9 +77,13 @@ public class FilmService {
             log.info("Валидация фильма {} прошла успешно", film);
             log.info("Фильму {} присвоен id {}", film, film.getId());
             filmRepository.save(film);
-            List<GenreDto> genres = film.getGenres();
-            for (GenreDto genre : genres) {
-                FilmGenre filmGenre = GenreMapper.mapToFilmGenre(genre, film.getId());
+            List<Genre> g = film.getGenres();
+            LinkedHashSet<Genre> uniqueGenres = new LinkedHashSet<>(g);
+            List<Genre> genres = new ArrayList<>(uniqueGenres);
+            for (Genre genre : genres) {
+                FilmGenre filmGenre = new FilmGenre();
+                filmGenre.setGenreId(genre.getId());
+                filmGenre.setFilmId(film.getId());
                 filmGenreRepository.save(filmGenre);
             }
             FilmMPA filmMPA = new FilmMPA();
@@ -152,12 +160,6 @@ public class FilmService {
             log.error("Продолжительность фильма не заполнена или заполнена некорректно");
             return false;
         }
-        // Проверка поля genres
-        /* List<GenreDto> genres = f.getGenres();
-        if (genres == null || genres.isEmpty() || genres.size() > 6) {
-            log.error("Список жанров пуст или количество жанров превышает допустимое значение (не более 6)");
-            return false;
-        } */
         return true; // Все проверки пройдены успешно
     }
 
@@ -167,8 +169,8 @@ public class FilmService {
         }
     }
 
-    private void validateGenres(List<GenreDto> genres) {
-        for (GenreDto genre : genres) {
+    private void validateGenres(List<Genre> genres) {
+        for (Genre genre : genres) {
             if (genreRepository.findGenreById(genre.getId()).isEmpty()) {
                 throw new NoFoundIdException("такого жанра нет");
             }
