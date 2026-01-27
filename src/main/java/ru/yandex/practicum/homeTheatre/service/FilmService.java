@@ -26,29 +26,15 @@ public class FilmService {
 
     public List<Film> getAllFilms() {
         List<Film> films = filmRepository.findAll();
-        List<Integer> filmIds = films.stream().map(Film::getId).collect(Collectors.toList());
-
-        // Предварительно загружаем все жанры и MPA для всех фильмов
-        List<FilmGenre> allFilmGenres = filmGenreRepository.getGenresByFilmIds(filmIds);
-        List<FilmMPA> allFilmMPAs = filmMpaRepository.findMPAsByFilmIds(filmIds);
-
-        Map<Integer, List<FilmGenre>> filmGenresMap = allFilmGenres.stream()
-                .collect(Collectors.groupingBy(FilmGenre::getFilmId));
-        Map<Integer, FilmMPA> filmMPAMap = allFilmMPAs.stream()
-                .collect(Collectors.toMap(FilmMPA::getFilmId, filmMPA -> filmMPA));
-
         for (Film film : films) {
             int filmId = film.getId();
-            List<FilmGenre> filmGenres = filmGenresMap.getOrDefault(filmId, Collections.emptyList());
-            FilmMPA filmMPA = filmMPAMap.get(filmId);
-            MPA mpa = mpaRepository.findMPAById(filmMPA.getMpaId()).orElse(null);
+            List<FilmGenre> filmGenres = filmGenreRepository.getGenresByFilmId(filmId);
+            FilmMPA filmMPA = filmMpaRepository.findMPAByFilmId(filmId);
+            MPA mpa = mpaRepository.findMPAById(filmMPA.getMpaId()).get();
             film.setMpa(mpa);
-
-            List<Genre> genres = new ArrayList<>();
-            for (FilmGenre filmGenre : filmGenres) {
-                Genre genre = genreRepository.findGenreById(filmGenre.getGenreId()).orElse(null);
-                genres.add(genre);
-            }
+            List<Genre> genres = filmGenres.stream()
+                    .map(fg -> genreRepository.findGenreById(fg.getGenreId()).get())
+                    .collect(Collectors.toList());
             film.setGenres(genres);
             film.setLikes(likeRepository.getUserIdsByFilmId(filmId));
         }

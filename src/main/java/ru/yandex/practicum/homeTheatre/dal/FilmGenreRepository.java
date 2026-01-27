@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 
 import ru.yandex.practicum.homeTheatre.model.FilmGenre;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,7 +15,7 @@ public class FilmGenreRepository extends ru.yandex.practicum.homeTheatre.dal.Bas
     private static final String INSERT_QUERY_ADD_GENRE = "INSERT INTO film_genre (filmId, genreId) VALUES (?, ?)";
     private static final String GET_GENRES_BY_FILM_ID = "SELECT * FROM film_genre WHERE filmId = ?";
     private static final String UPDATE_QUERY = "UPDATE film_genre SET filmId = ?, genreId = ? WHERE id = ?";
-    private static final String GET_GENRES_BY_FILM_IDS = "SELECT * FROM film_genre WHERE filmId IN (:filmIds)";
+
 
     public FilmGenreRepository(JdbcTemplate jdbc, RowMapper<FilmGenre> mapper) {
         super(jdbc, mapper);
@@ -50,15 +49,6 @@ public class FilmGenreRepository extends ru.yandex.practicum.homeTheatre.dal.Bas
                 filmGenre.getGenreId(),
                 filmGenre.getId()
         );
-    }
-
-    public List<FilmGenre> getGenresByFilmIds(List<Integer> filmIds) {
-        return jdbc.query(GET_GENRES_BY_FILM_IDS, (rs, rowNum) -> {
-            FilmGenre filmGenre = new FilmGenre();
-            filmGenre.setFilmId(rs.getInt("filmId"));
-            filmGenre.setGenreId(rs.getInt("genreId"));
-            return filmGenre;
-        }, Collections.singletonMap("filmIds", filmIds));
     }
 }
 
