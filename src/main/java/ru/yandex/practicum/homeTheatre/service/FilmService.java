@@ -38,7 +38,7 @@ public class FilmService {
             System.out.println(film.getMpa() + "++++++++++++");
             List<Genre> genres = new ArrayList<>();
             for (FilmGenre filmGenre : filmGenres) {
-                Genre genre = genreRepository.findGenreById(filmGenre.getFilmId()).get();
+                Genre genre = genreRepository.findGenreById(filmGenre.getGenreId()).get();
                 genres.add(genre);
             }
             film.setGenres(genres);
@@ -57,7 +57,7 @@ public class FilmService {
         System.out.println(film.getMpa() + "++++++++++++");
         List<Genre> genres = new ArrayList<>();
         for (FilmGenre filmGenre : filmGenres) {
-            Genre genre = genreRepository.findGenreById(filmGenre.getFilmId()).get();
+            Genre genre = genreRepository.findGenreById(filmGenre.getGenreId()).get();
             genres.add(genre);
         }
         film.setGenres(genres);
