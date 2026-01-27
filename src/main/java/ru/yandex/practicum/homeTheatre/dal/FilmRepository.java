@@ -3,7 +3,7 @@ package ru.yandex.practicum.homeTheatre.dal;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.homeTheatre.exceptions.InternalServerException;
+import ru.yandex.practicum.homeTheatre.exceptions.DatabaseException;
 import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
 import ru.yandex.practicum.homeTheatre.model.Film;
 
@@ -41,7 +41,7 @@ public class FilmRepository extends ru.yandex.practicum.homeTheatre.dal.BaseRepo
     public void removeFilmById(int id) {
         boolean deleted = delete(DELETE_FILM_QUERY, id);
         if (!deleted) {
-            throw new InternalServerException("Не удалось удалить пользователя");
+            throw new DatabaseException("Не удалось удалить пользователя");
         }
     }
 

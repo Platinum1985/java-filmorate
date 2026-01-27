@@ -1,6 +1,7 @@
 package ru.yandex.practicum.homeTheatre.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.stereotype.Component;
 
 
@@ -12,6 +13,7 @@ import java.util.Set;
 
 @Data
 @Component
+@EqualsAndHashCode(of = {"id"})
 public class Film {
     private int id;
     private String name;

@@ -39,18 +39,14 @@ public class UserController {
 
     @PostMapping("/users")
     public User create(@RequestBody User userRequest) {
-        log.info("Начинается создание нового пользователя: {}", userRequest);
         User createdUser = userService.addUser(userRequest);
-        log.info("Пользователь {} успешно создан и добавлен", createdUser);
         return createdUser;
     }
 
 
     @PutMapping("/users")
     public User update(@RequestBody User user) {
-        log.info("Начинается обновление пользователя: {}", user);
         userService.updateUser(user);
-        log.info("Данные пользователя обновлены");
         return user;
     }
 
@@ -66,15 +62,14 @@ public class UserController {
 
     @PutMapping("/users/{id}/friends/{friendId}") // +
     public void addFriendById(@PathVariable("id") int yourId, @PathVariable("friendId") int friendId) {
-        System.out.println("вызов контроллера");
         userService.addFriendById(yourId, friendId);
     }
 
     @DeleteMapping("/users/{id}/friends/{friendId}") // +
     public void deleteFriendById(@PathVariable("id") int yourId, @PathVariable("friendId") int friendId) {
         Friendship friendship = new Friendship();
-        friendship.setUserId1(yourId);
-        friendship.setUserId2(friendId);
+        friendship.setUserRequestId(yourId);
+        friendship.setUserFriendId(friendId);
         userService.deleteFriendById(friendship);
     }
 
@@ -93,7 +88,6 @@ public class UserController {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Map<String, String> handleGeneralException(Exception e) {
-        log.error("Произошла ошибка на сервере", e);
         return Map.of("error", "Произошла внутренняя ошибка сервера.");
     }
 }

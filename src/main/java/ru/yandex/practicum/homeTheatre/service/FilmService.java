@@ -10,9 +10,7 @@ import ru.yandex.practicum.homeTheatre.exceptions.ValidationException;
 import ru.yandex.practicum.homeTheatre.model.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,17 +26,27 @@ public class FilmService {
 
     public List<Film> getAllFilms() {
         List<Film> films = filmRepository.findAll();
+        List<Integer> filmIds = films.stream().map(Film::getId).collect(Collectors.toList());
+
+        // Предварительно загружаем все жанры и MPA для всех фильмов
+        List<FilmGenre> allFilmGenres = filmGenreRepository.getGenresByFilmIds(filmIds);
+        List<FilmMPA> allFilmMPAs = filmMpaRepository.findMPAsByFilmIds(filmIds);
+
+        Map<Integer, List<FilmGenre>> filmGenresMap = allFilmGenres.stream()
+                .collect(Collectors.groupingBy(FilmGenre::getFilmId));
+        Map<Integer, FilmMPA> filmMPAMap = allFilmMPAs.stream()
+                .collect(Collectors.toMap(FilmMPA::getFilmId, filmMPA -> filmMPA));
+
         for (Film film : films) {
             int filmId = film.getId();
-            List<FilmGenre> filmGenres = filmGenreRepository.getGenresByFilmId(filmId).stream()
-                    .collect(Collectors.toList());
-            FilmMPA filmMPA = filmMpaRepository.findMPAByFilmId(filmId);
-            MPA mpa = mpaRepository.findMPAById(filmMPA.getMpaId()).get(); // -------
+            List<FilmGenre> filmGenres = filmGenresMap.getOrDefault(filmId, Collections.emptyList());
+            FilmMPA filmMPA = filmMPAMap.get(filmId);
+            MPA mpa = mpaRepository.findMPAById(filmMPA.getMpaId()).orElse(null);
             film.setMpa(mpa);
-            System.out.println(film.getMpa() + "++++++++++++");
+
             List<Genre> genres = new ArrayList<>();
             for (FilmGenre filmGenre : filmGenres) {
-                Genre genre = genreRepository.findGenreById(filmGenre.getGenreId()).get();
+                Genre genre = genreRepository.findGenreById(filmGenre.getGenreId()).orElse(null);
                 genres.add(genre);
             }
             film.setGenres(genres);
@@ -52,9 +60,8 @@ public class FilmService {
         List<FilmGenre> filmGenres = filmGenreRepository.getGenresByFilmId(filmId).stream()
                 .collect(Collectors.toList());
         FilmMPA filmMPA = filmMpaRepository.findMPAByFilmId(filmId);
-        MPA mpa = mpaRepository.findMPAById(filmMPA.getMpaId()).get(); // -------
+        MPA mpa = mpaRepository.findMPAById(filmMPA.getMpaId()).get();
         film.setMpa(mpa);
-        System.out.println(film.getMpa() + "++++++++++++");
         List<Genre> genres = new ArrayList<>();
         for (FilmGenre filmGenre : filmGenres) {
             Genre genre = genreRepository.findGenreById(filmGenre.getGenreId()).get();
@@ -65,7 +72,7 @@ public class FilmService {
         return film;
     }
 
-    public void addFilm(Film film) { // ++
+    public void addFilm(Film film) {
         MPA mpa = film.getMpa();
         validateMpa(mpa);
         validateGenres(film.getGenres());
@@ -94,11 +101,11 @@ public class FilmService {
         }
     }
 
-    public void removeFilm(int id) { // +
+    public void removeFilm(int id) {
         filmRepository.removeFilmById(id);
     }
 
-    public void updateFilm(Film film) { // ++
+    public void updateFilm(Film film) {
         checkFilmId(film.getId());
         validateMpa(film.getMpa());
         if (!validateFilm(film)) {
@@ -177,7 +184,7 @@ public class FilmService {
         }
     }
 
-    private void checkFilmId(int filmId) { // будет ошибка 404 если id нет в таблице
+    private void checkFilmId(int filmId) {
         filmRepository.getFilmById(filmId);
     }
 }

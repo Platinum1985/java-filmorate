@@ -33,7 +33,7 @@ public class UserService {
             user.setFriends(friends);
         }
         return users;
-    }  // +
+    }
 
 
     public void removeUserById(int id) {
@@ -41,7 +41,7 @@ public class UserService {
     }
 
 
-    public User addUser(User user) { // +
+    public User addUser(User user) {
         if (validateUser(user)) {
             log.info("Валидация пользователя {} прошла успешно", user);
             userRepository.save(user);
@@ -53,7 +53,7 @@ public class UserService {
         return user;
     }
 
-    public void updateUser(User user) { // +
+    public void updateUser(User user) {
         if (!validateUser(user)) {
             log.error("Поля пользователя {} заполнены некорректно", user.toString());
             throw new ValidationException("некорректно заполнены поля");
@@ -105,8 +105,8 @@ public class UserService {
     }
 
     public void deleteFriendById(Friendship friendship) {
-        User user = getUserById(friendship.getUserId1()); // ++  602, 650
-        User friend = getUserById(friendship.getUserId2());
+        User user = getUserById(friendship.getUserRequestId());
+        User friend = getUserById(friendship.getUserFriendId());
 
         if (user == null || friend == null) {
             throw new NoFoundIdException("Пользователи с такими id не найдены");
@@ -135,7 +135,7 @@ public class UserService {
             return false;
         }
 
-        if (!StringUtils.hasText(user.getName())) { // +++
+        if (!StringUtils.hasText(user.getName())) {
             log.error("Не заполнено name или заполнен некорректно");
             return false;
         }

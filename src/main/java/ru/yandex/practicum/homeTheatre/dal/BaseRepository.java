@@ -1,17 +1,19 @@
 package ru.yandex.practicum.homeTheatre.dal;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
-import ru.yandex.practicum.homeTheatre.exceptions.InternalServerException;
+import ru.yandex.practicum.homeTheatre.exceptions.DatabaseException;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RequiredArgsConstructor
 public class BaseRepository<T> {
     protected final JdbcTemplate jdbc;
@@ -36,7 +38,7 @@ public class BaseRepository<T> {
             return rowsDeleted > 0;
         } catch (Exception e) {
             // Логирование исключения, если необходимо
-            throw new InternalServerException("Произошла ошибка при удалении данных");
+            throw new DatabaseException("Произошла ошибка при удалении данных");
         }
     }
 
@@ -46,14 +48,16 @@ public class BaseRepository<T> {
             return rowsDeleted > 0;
         } catch (Exception e) {
             // Логирование исключения, если необходимо
-            throw new InternalServerException("Произошла ошибка при удалении данных");
+            throw new DatabaseException("Произошла ошибка при удалении данных");
         }
     }
 
     protected void update(String query, Object... params) {
         int rowsUpdated = jdbc.update(query, params);
-        if (rowsUpdated == 0) {
-            throw new InternalServerException("Не удалось обновить данные");
+        if (rowsUpdated > 0) {
+            log.info("Данные базы успешно обновлены");
+        } else {
+            log.debug("Обновления данных не произошло или возникла ошибка");
         }
     }
 
@@ -74,7 +78,7 @@ public class BaseRepository<T> {
         if (id != null) {
             return id;
         } else {
-            throw new InternalServerException("Не удалось сохранить данные");
+            throw new DatabaseException("Не удалось сохранить данные");
         }
     }
 }

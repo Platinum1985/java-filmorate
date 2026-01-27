@@ -1,12 +1,12 @@
 package ru.yandex.practicum.homeTheatre.model;
 
 import lombok.Data;
-import org.springframework.stereotype.Component;
+import lombok.EqualsAndHashCode;
 
 @Data
-@Component
+@EqualsAndHashCode(of = {"id"})
 public class FilmMPA {
-    int id;
-    int mpaId;
-    int filmId;
+    private int id;
+    private int mpaId;
+    private int filmId;
 }

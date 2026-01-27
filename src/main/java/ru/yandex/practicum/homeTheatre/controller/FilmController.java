@@ -39,25 +39,20 @@ public class FilmController {
 
     @PostMapping("/films")
     public Film create(@RequestBody Film film) {
-        log.info("Начинается создание нового фильма: {}", film);
         filmService.addFilm(film);
-        log.info("Фильм {} успешно создан и добавлен в HashMap", film);
         return film;
 
     }
 
     @PutMapping("/films")
     public Film update(@RequestBody Film film) { // почему горишь синим???
-        log.info("Начинается обновление фильма: {}", film);
         filmService.updateFilm(film);
-        log.info("Фильм успешно обновлен: {}", film);
         return film;
     }
 
     @DeleteMapping("/films")
     public void deleteFilm(@RequestParam int id) {
         filmService.removeFilm(id);
-        log.trace("Фильм с Id = {} удален", id);
     }
 
     @PutMapping("/films/{filmId}/like/{userId}")
@@ -85,7 +80,6 @@ public class FilmController {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Map<String, String> handleGeneralException(Exception e) {
-        log.error("Произошла ошибка на сервере", e);
         return Map.of("error", "Произошла внутренняя ошибка сервера.");
     }
 }

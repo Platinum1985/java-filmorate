@@ -46,10 +46,7 @@ public class FriendshipRepository extends ru.yandex.practicum.homeTheatre.dal.Ba
     }
 
     public void deleteFriendById(Friendship friendship) {
-        boolean deleted = delete(DELETE_QUERY, friendship.getUserId1(), friendship.getUserId2());
-      /*  if (!deleted) {
-            throw new InternalServerException("Не удалось удалить пользователя");
-        } //469, 535 */
+        delete(DELETE_QUERY, friendship.getUserRequestId(), friendship.getUserFriendId());
     }
 
     public Set<Integer> findMutualFriends(int id1, int id2) {

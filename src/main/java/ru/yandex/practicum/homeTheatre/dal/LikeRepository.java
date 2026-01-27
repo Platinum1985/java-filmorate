@@ -3,7 +3,7 @@ package ru.yandex.practicum.homeTheatre.dal;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.homeTheatre.exceptions.InternalServerException;
+import ru.yandex.practicum.homeTheatre.exceptions.DatabaseException;
 import ru.yandex.practicum.homeTheatre.model.Like;
 
 import java.util.List;
@@ -47,7 +47,7 @@ public class LikeRepository extends ru.yandex.practicum.homeTheatre.dal.BaseRepo
     public void deleteLike(int filmId, int userId) {
         boolean deleted = delete(DELETE_LIKE_QUERY, filmId, userId);
         if (!deleted) {
-            throw new InternalServerException("Не удалось удалить пользователя");
+            throw new DatabaseException("Не удалось удалить пользователя");
         }
     }
 
