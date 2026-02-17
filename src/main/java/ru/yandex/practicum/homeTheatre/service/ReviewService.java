@@ -118,7 +118,7 @@ public class ReviewService {
             log.error("filmId должен быть положительным числом");
             return false;
         }
-        return true; // Все проверки пройдены успешно
+        return true; // Все проверки пройдены успешно!
     }
 
 }
