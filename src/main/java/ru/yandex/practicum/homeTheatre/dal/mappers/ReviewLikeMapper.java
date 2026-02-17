@@ -2,7 +2,6 @@ package ru.yandex.practicum.homeTheatre.dal.mappers;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.homeTheatre.model.Review;
 import ru.yandex.practicum.homeTheatre.model.ReviewLike;
 
 import java.sql.ResultSet;
