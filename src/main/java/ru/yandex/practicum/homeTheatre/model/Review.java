@@ -2,7 +2,6 @@ package ru.yandex.practicum.homeTheatre.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.stereotype.Component;
 
 @Data
 @EqualsAndHashCode(of = {"reviewId"})
