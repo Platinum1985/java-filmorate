@@ -42,9 +42,9 @@ public class BaseRepository<T> {
         }
     }
 
-    protected boolean delete(String query, int id_1, int id_2) { // можно было сделать аргументы переменной длины
+    protected boolean delete(String query, Object... params) { // можно было сделать аргументы переменной длины
         try {
-            int rowsDeleted = jdbc.update(query, id_1, id_2);
+            int rowsDeleted = jdbc.update(query, params);
             return rowsDeleted > 0;
         } catch (Exception e) {
             // Логирование исключения, если необходимо
