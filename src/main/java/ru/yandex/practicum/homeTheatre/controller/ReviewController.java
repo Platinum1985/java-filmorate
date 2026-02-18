@@ -2,11 +2,15 @@ package ru.yandex.practicum.homeTheatre.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.homeTheatre.exceptions.NoFoundIdException;
+import ru.yandex.practicum.homeTheatre.exceptions.ValidationException;
 import ru.yandex.practicum.homeTheatre.model.Review;
 import ru.yandex.practicum.homeTheatre.service.ReviewService;
 
 import java.util.Collection;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -67,4 +71,23 @@ public class ReviewController {
     public void deleteDislike(@PathVariable("id") int reviewId, @PathVariable("userId") int userId) {
         reviewService.removeReviewDislike(reviewId, userId);
     }
+
+    @ExceptionHandler(NoFoundIdException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleNoFoundIdException(NoFoundIdException e) {
+        return Map.of("error", e.getMessage());
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)  // код 400
+    public Map<String, String> handleValidationException(ValidationException e) {
+        return Map.of("error", e.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Map<String, String> handleGeneralException(Exception e) {
+        return Map.of("error", "Произошла внутренняя ошибка сервера.");
+    }
 }
+

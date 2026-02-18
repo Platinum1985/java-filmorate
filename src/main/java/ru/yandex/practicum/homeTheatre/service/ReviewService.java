@@ -17,12 +17,17 @@ import java.util.List;
 public class ReviewService {
     private final ReviewLikeRepository reviewLikeRepository;
     private final ReviewRepository reviewRepository;
+    private final UserService userService;
+    private final FilmService filmService;
 
     public void addReview(Review review) {
         if (!validateReview(review)) {
             log.error("некорректно заполнены поля");
-            throw new ValidationException("некорректно заполнены поля");
+            throw new ValidationException("некорректно заполнены поля"); // 400 код
         } else {
+            log.error(review.getUserId() + " поле UserId");
+            userService.getUserById(review.getUserId()); // проверка на существование User с таким id
+            filmService.getFilm(review.getFilmId()); // проверка на существование Film с таким id. если не найдет возникнет ошибка 404
             log.info("Валидация review {} прошла успешно", review);
             reviewRepository.save(review);
         }
@@ -54,6 +59,7 @@ public class ReviewService {
     }
 
     public void addReviewLike(int reviewId, int userId) {
+        removeReviewDislike(reviewId, userId); // если есть дизлайк с такими id, удаляем его
         ReviewLike reviewLike = new ReviewLike();
         reviewLike.setLike(true);
         reviewLike.setReviewId(reviewId);
@@ -65,6 +71,7 @@ public class ReviewService {
     }
 
     public void addReviewDislike(int reviewId, int userId) {
+        removeReviewLike(reviewId, userId); // если есть лайк с такими id-сначала удаляем лайк
         ReviewLike reviewLike = new ReviewLike();
         reviewLike.setLike(false);
         reviewLike.setReviewId(reviewId);
@@ -106,19 +113,15 @@ public class ReviewService {
             log.error("поле isPositive не должно быть пустым");
             return false;
         }
-
-        // Проверка userId
-        if (review.getUserId() <= 0) {
-            log.error("userId должен быть положительным числом");
+        if (review.getUserId() == 0) {
+            log.error("Поле UserId  не заполнено или =0 ");
             return false;
         }
-
-        // Проверка filmId
-        if (review.getFilmId() <= 0) {
-            log.error("filmId должен быть положительным числом");
+        if (review.getFilmId() == 0) {
+            log.error("Поле FilmId  не заполнено или =0 ");
             return false;
         }
-        return true; // Все проверки пройдены успешно
+        return true; // Все проверки пройдены успешно!!!!
     }
 
 }
