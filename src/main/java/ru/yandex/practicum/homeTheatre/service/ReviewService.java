@@ -17,8 +17,12 @@ import java.util.List;
 public class ReviewService {
     private final ReviewLikeRepository reviewLikeRepository;
     private final ReviewRepository reviewRepository;
+    private final UserService userService;
+    private final FilmService filmService;
 
     public void addReview(Review review) {
+        userService.getUserById(review.getUserId()); // проверка на существование User с таким id
+        filmService.getFilm(review.getFilmId()); // проверка на существование Film с таким id. если не найдет возникнет ошибка 404
         if (!validateReview(review)) {
             log.error("некорректно заполнены поля");
             throw new ValidationException("некорректно заполнены поля");
@@ -104,18 +108,6 @@ public class ReviewService {
         // Проверка isPositive
         if (review.getIsPositive() == null) {
             log.error("поле isPositive не должно быть пустым");
-            return false;
-        }
-
-        // Проверка userId
-        if (review.getUserId() <= 0) {
-            log.error("userId должен быть положительным числом");
-            return false;
-        }
-
-        // Проверка filmId
-        if (review.getFilmId() <= 0) {
-            log.error("filmId должен быть положительным числом");
             return false;
         }
         return true; // Все проверки пройдены успешно!!!!

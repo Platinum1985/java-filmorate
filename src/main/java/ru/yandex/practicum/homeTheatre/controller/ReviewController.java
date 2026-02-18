@@ -79,7 +79,7 @@ public class ReviewController {
     }
 
     @ExceptionHandler(ValidationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)  // код 400
     public Map<String, String> handleValidationException(ValidationException e) {
         return Map.of("error", e.getMessage());
     }
