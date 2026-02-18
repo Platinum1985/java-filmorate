@@ -59,6 +59,7 @@ public class ReviewService {
     }
 
     public void addReviewLike(int reviewId, int userId) {
+        removeReviewDislike(reviewId, userId); // если есть дизлайк с такими id, удаляем его
         ReviewLike reviewLike = new ReviewLike();
         reviewLike.setLike(true);
         reviewLike.setReviewId(reviewId);
@@ -70,6 +71,7 @@ public class ReviewService {
     }
 
     public void addReviewDislike(int reviewId, int userId) {
+        removeReviewLike(reviewId, userId); // если есть лайк с такими id-сначала удаляем лайк
         ReviewLike reviewLike = new ReviewLike();
         reviewLike.setLike(false);
         reviewLike.setReviewId(reviewId);
