@@ -21,12 +21,13 @@ public class ReviewService {
     private final FilmService filmService;
 
     public void addReview(Review review) {
-        userService.getUserById(review.getUserId()); // проверка на существование User с таким id
-        filmService.getFilm(review.getFilmId()); // проверка на существование Film с таким id. если не найдет возникнет ошибка 404
         if (!validateReview(review)) {
             log.error("некорректно заполнены поля");
-            throw new ValidationException("некорректно заполнены поля");
+            throw new ValidationException("некорректно заполнены поля"); // 400 код
         } else {
+            log.error(review.getUserId() + " поле UserId");
+            userService.getUserById(review.getUserId()); // проверка на существование User с таким id
+            filmService.getFilm(review.getFilmId()); // проверка на существование Film с таким id. если не найдет возникнет ошибка 404
             log.info("Валидация review {} прошла успешно", review);
             reviewRepository.save(review);
         }
@@ -108,6 +109,14 @@ public class ReviewService {
         // Проверка isPositive
         if (review.getIsPositive() == null) {
             log.error("поле isPositive не должно быть пустым");
+            return false;
+        }
+        if (review.getUserId() == 0) {
+            log.error("Поле UserId  не заполнено или =0 ");
+            return false;
+        }
+        if (review.getFilmId() == 0) {
+            log.error("Поле FilmId  не заполнено или =0 ");
             return false;
         }
         return true; // Все проверки пройдены успешно!!!!
